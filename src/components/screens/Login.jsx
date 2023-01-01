@@ -1,12 +1,17 @@
-import React, {  useState } from 'react'
+import React, { useState } from 'react'
 import { Helmet } from 'react-helmet'
 import Lottie from 'react-lottie'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import buttonAnimation from '../../assets/lottie/buttonLoader.json'
-import api from '../../config/axiosConfig'
+import { useApi } from '../hooks/useApi'
 import { authActions } from '../../store/authSlice'
+import show from '../../assets/icons/eye.svg'
+import hide from '../../assets/icons/hide.svg'
+import message from '../../assets/icons/message.svg'
+import lock from '../../assets/icons/lock.svg'
+
 
 const Login = () => {
 	const [isHide, setIsHide] = useState(true)
@@ -19,19 +24,7 @@ const Login = () => {
 
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
-
-	const show = "https://s3.ap-south-1.amazonaws.com/talrop.com-react-assets-bucket/yiaai/01-02-2022/images/eye.svg"
-	const hide = "https://s3.ap-south-1.amazonaws.com/talrop.com-react-assets-bucket/yiaai/01-02-2022/images/hide.svg"
-
-	// useEffect(() => {
-	// 	document.body.addEventListener("keydown", (e) => {
-	// 		if (e.keyCode === 13) {
-	// 			if (isValidUsername && isValidPassword) {
-	// 				loginHandler()
-	// 			}
-	// 		}
-	// 	})
-	// })
+	const api = useApi()
 
 	const loginHandler = () => {
 		const data = {
@@ -77,6 +70,30 @@ const Login = () => {
 		animationData: buttonAnimation,
 	};
 
+	const onUsernameChange = e => {
+		const tempUsername = e.target.value
+
+		setErrorMessage(false)
+		setUsername(tempUsername)
+		setIsValidUsername(false)
+
+		if (tempUsername.length >= 4) {
+			setIsValidUsername(true)
+		}
+	}
+
+	const onPasswordChange = e => {
+		let tempPassword = e.target.value
+
+		setErrorMessage(false)
+		setPassword(tempPassword)
+		setIsValidPassword(false)
+
+		if (tempPassword.length >= 4) {
+			setIsValidPassword(true)
+		}
+	}
+
 	return (
 		<>
 			<Helmet>
@@ -89,37 +106,50 @@ const Login = () => {
 						<P>Pulimparamba Mahall Committee Management System</P>
 						<InputContainer>
 							<label htmlFor="username">
-								<img src="https://s3.ap-south-1.amazonaws.com/talrop.com-react-assets-bucket/yiaai/01-02-2022/images/message.svg" alt="" />
+								<img src={message} alt="" />
 							</label>
-							<input type="text" id='username' value={username} placeholder="username" onChange={e => {
-								setUsername(e.target.value)
-								setIsValidUsername(false)
-								if (e.target.value.length >= 4) {
-									setIsValidUsername(true)
-								}
-							}} />
+							<input
+								type="text"
+								id='username'
+								value={username}
+								placeholder="username"
+								onChange={onUsernameChange}
+							/>
 						</InputContainer>
-						<InputContainer style={{ marginBottom: '8px' }}>
+						<InputContainer
+							style={{ marginBottom: '8px' }}
+						>
 							<label htmlFor="password">
-								<img src="https://s3.ap-south-1.amazonaws.com/talrop.com-react-assets-bucket/yiaai/01-02-2022/images/lock.svg" alt="" />
+								<img
+									src={lock}
+									alt=""
+								/>
 							</label>
-							<input type={isHide ? "password" : "text"} id='password' placeholder="password" value={password} onChange={e => {
-								setPassword(e.target.value)
-								setIsValidPassword(false)
-								if (e.target.value.length >= 4) {
-									setIsValidPassword(true)
-								}
-							}} />
+							<input
+								type={isHide ? "password" : "text"}
+								id='password'
+								placeholder="password"
+								value={password}
+								onChange={onPasswordChange}
+							/>
 							<span>
 								<img src={isHide ? hide : show} alt="show-hide" onClick={e => setIsHide(!isHide)} />
 							</span>
 						</InputContainer>
 						{errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-						<Button className={(isValidUsername && isValidPassword) ? "" : "invalid"} onClick={loginHandler}>{isLoading ? (
-							<Lottie options={defaultOptions}
-								height={200}
-								width={200} />
-						) : "Login"}</Button>
+						<Button
+							className={(isValidUsername && isValidPassword) ? "" : "invalid"}
+							onClick={loginHandler}>{isLoading ? (
+								<Lottie
+									options={defaultOptions}
+									height={200}
+									width={200}
+								/>
+							)
+								:
+								"Login"
+							}
+						</Button>
 					</Content>
 				</ContentWrapper>
 			</MainWrapper>

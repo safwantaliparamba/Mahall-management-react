@@ -4,59 +4,56 @@ import searchIcon from '../../../assets/icons/Search.png'
 import Dots from '../../../assets/icons/Dots'
 import AddCustomers from '../../../assets/icons/AddCustomers'
 import Delete from '../../../assets/icons/Delete'
-// import { useNavigation } from 'react-router-dom'
 
 
-const ItemHeader = ({ header, setSearchKeyWord, addNewHandler, deleteMethod, disableDelete }) => {
-    const [hoverAddNew, setHoverAddNew] = useState(false)
-    const [hoverDelete, setHoverDelete] = useState(false)
-    // const [disableDelete] = useState(false)
+const ItemHeader = ({ header, setSearchKeyWord, deleteMethod, disableDelete, addNewHandler }) => {
+	const [hoverAddNew, setHoverAddNew] = useState(false)
 
-    // const navigate = useNavigation()
-
-    return (
-        <>
-            <MainWrapper>
-                <Header>
-                    <h1>{header}</h1>
-                </Header>
-                <TopMenu>
-                    <TopLeft>
-                        <SearchBarContainer>
-                            <input type="search" placeholder="Search...." onChange={e => setSearchKeyWord(e.target.value)} />
-                            <img src={searchIcon} alt="" />
-                        </SearchBarContainer>
-                    </TopLeft>
-                    <TopRight>
-                        <Button
-                            className={hoverAddNew ? "active" : ""}
-                            onMouseOver={e => setHoverAddNew(true)}
-                            onMouseLeave={e => setHoverAddNew(false)}
-                            onClick={e => addNewHandler()}
-                        >
-                            <AddCustomers />
-                            <span>Add New</span>
-                        </Button>
-                        <Button
-                            className={[disableDelete ? "disabled" : "", hoverDelete ? "deleteActive" : ""]}
-                            onMouseOver={e => !disableDelete && setHoverDelete(true)}
-                            onMouseLeave={e => !disableDelete && setHoverDelete(false)}
-                            onClick={e =>{
-                                !disableDelete && deleteMethod()
-                            }}
-                        >
-                            <Delete />
-                            <span>Delete</span>
-                        </Button>
-                        <Dots />
-                    </TopRight>
-                </TopMenu>
-                <Content>
-
-                </Content>
-            </MainWrapper>
-        </>
-    )
+	return (
+		<>
+			<MainWrapper>
+				<Header>
+					<h1>{header}</h1>
+				</Header>
+				<TopMenu>
+					<TopLeft>
+						<SearchBarContainer>
+							<input
+								type="search"
+								placeholder="Search...."
+								onChange={e => setSearchKeyWord(e.target.value)}
+							/>
+							<img
+								src={searchIcon}
+								alt=""
+							/>
+						</SearchBarContainer>
+					</TopLeft>
+					<TopRight>
+						<Button
+							className={hoverAddNew ? "active" : ""}
+							onMouseOver={e => setHoverAddNew(true)}
+							onMouseLeave={e => setHoverAddNew(false)}
+							onClick={e => addNewHandler()}
+						>
+							<AddCustomers />
+							<span>Create</span>
+						</Button>
+						<Button
+							className={[disableDelete ? "disabled" : "deleteActive"]}
+							onClick={e => {
+								!disableDelete && deleteMethod()
+							}}
+						>
+							<Delete />
+							<span>Delete</span>
+						</Button>
+						<Dots />
+					</TopRight>
+				</TopMenu>
+			</MainWrapper>
+		</>
+	)
 }
 
 export default ItemHeader
@@ -64,6 +61,11 @@ export default ItemHeader
 const MainWrapper = styled.section`
 	/* background-color: rgb(22 22 25); */
 	background: rgb(27 28 31);
+	border: 1px solid rgb(38,39,42);
+
+	*{
+		user-select: none;
+	}
 `
 const Header = styled.div`
 	padding: 36px;
@@ -125,6 +127,10 @@ const Button = styled.button`
 	border: 1px solid #313236;
 	border-radius: 8px;
 	margin-right: 24px;
+
+	svg{
+		width: 16px;
+	}
 
 	&.disabled{
 		cursor: not-allowed;

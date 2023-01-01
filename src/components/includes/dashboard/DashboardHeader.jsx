@@ -1,15 +1,13 @@
 import React, { useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useDispatch } from 'react-redux'
-import { authActions } from '../../../store/authSlice'
+import useClickOutside from '../../hooks/useClickOutside'
 
 const DashboardHeader = () => {
 	const [isOpen, setIsOpen] = useState(false)
 	const username = useSelector(state => state.auth.username)
-
 
 	return (
 		<>
@@ -21,8 +19,13 @@ const DashboardHeader = () => {
 					<Link to="/dashboard/dashboard/">
 						<h1>DASHBOARD</h1>
 					</Link>
-					<Right onClick={e => setIsOpen(!isOpen)}>
-						<Account>
+					<Right
+						onClick={e => setIsOpen(!isOpen)}
+						id="account-action"
+					>
+						<Account
+							// onClick={e => setIsOpen(!isOpen)}
+						>
 							{username[0].toUpperCase()}
 						</Account>
 						<span>{username}</span>
@@ -30,7 +33,7 @@ const DashboardHeader = () => {
 				</header>
 			</MainContainer>
 			{isOpen && (
-				<AccountsModal />
+				<AccountsModal setIsOpen={setIsOpen} />
 			)}
 		</>
 	)
@@ -40,19 +43,19 @@ export default DashboardHeader
 
 const MainContainer = styled.section`
 	background-color: rgb(22 22 25);
-	
-	/* min-height: 100vh; */
 	padding: 12px;
 
+	*{
+		user-select: none;
+	}
+	
 	header{
+		border: 1px solid rgb(38,39,42);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		padding: 16px 32px;
 		background-color:rgb(27 28 31);
-		/* background:linear-gradient(#111,#2f0e58,48g); */
-		/* background: rgb(2,0,36); */
-		/* background: radial-gradient(circle, rgba(2,0,36,1) 0%, rgba(60,9,94,1) 100%); */
 
 		h1{
 			color: #fff;
@@ -82,31 +85,29 @@ const Right = styled.div`
 	}
 `
 
-const AccountsModal = () => {
-	const dispatch = useDispatch()
-	// useEffect(() => {
-	// 	const listener = document.body.addEventListener('click', () => {
-	// 		closeHandler()
-	// 	})
+const AccountsModal = ({ setIsOpen }) => {
+	const parentRef = document.getElementById("account-action")
 
-	// 	return () => {}
-	// })
+	const navigate = useNavigate()
+	const modalRef = useClickOutside(() => setIsOpen(false), parentRef)
+
 	return (
-		<Content>
+		<Content ref={modalRef}>
 			<ul>
 				<li>
 					<Link to=''>Profile</Link>
 				</li>
 				<li onClick={e => {
-					dispatch(authActions.logout())
+					navigate('/auth/logout/')
 				}}>
-					<img src="https://s3.ap-south-1.amazonaws.com/talrop.com-react-assets-bucket/yiaai/01-02-2022/icons/logout.svg" alt="" />
+					<img src={require('../../../assets/icons/logout.svg').default} alt="" />
 					<span>Logout</span>
 				</li>
 			</ul>
 		</Content>
 	)
 }
+
 
 const Content = styled.div`
 	position: absolute;

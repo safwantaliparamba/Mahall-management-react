@@ -123,14 +123,18 @@ export default DashboardSideNav
 
 const SideBar = styled.section`
     /* position: fixed; */
-    width: 20%;
     /* padding: 12px; */
+    width: 20%;
     padding-top: 0;
+    *{
+        user-select: none;
+    }
 `
 
 const Content = styled.aside`
     background-color: rgb(27 28 31);
-    height:calc(100vh - 100px);
+    border: 1px solid rgb(38,39,42);
+    height:calc(100vh - 110px);
 
     ul{
         padding-top: 36px;

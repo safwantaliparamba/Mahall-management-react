@@ -6,6 +6,7 @@ const initialState = {
     accessToken: localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : null,
     refreshToken: localStorage.getItem('refreshToken') ? localStorage.getItem('refreshToken') : null,
     isAuthenticated: localStorage.getItem('isAuthenticated') ? localStorage.getItem('isAuthenticated') : false,
+    networkError: false,
 }
 
 const authSlice = createSlice({
@@ -28,6 +29,9 @@ const authSlice = createSlice({
             localStorage.clear()
             state.isAuthenticated = false
         },
+        setNetworkError: (state, { payload }) => {
+            state.networkError = payload.networkError
+        }
     }
 })
 

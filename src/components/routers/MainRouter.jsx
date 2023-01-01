@@ -14,5 +14,5 @@ const MainRoute = () => {
 export default MainRoute
 
 const Main = () =>{
-    return <Navigate to='/dashboard/' />
+    return <Navigate to='/dashboard/dashboard/' />
 }
