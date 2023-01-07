@@ -135,8 +135,11 @@ const Content = styled.aside`
     background-color: rgb(27 28 31);
     border: 1px solid rgb(38,39,42);
     height:calc(100vh - 110px);
-
+    /* height: 96vh; */
     ul{
+        /* position: -webkit-sticky;
+        position: sticky;
+        top: 0; */
         padding-top: 36px;
         a{
             display: block;

@@ -11,8 +11,6 @@ import NetworkError from "./components/modal/NetworkError";
 function App() {
 	const hasNetworkError = useSelector(state => state.auth.networkError)
 
-	console.log(hasNetworkError);
-
 	useEffect(() => {
 		window.addEventListener("contextmenu", e => e.preventDefault());
 	}, [])
@@ -20,7 +18,7 @@ function App() {
 	return (
 		<>
 			<Routes>
-				<Route path='/auth/*' element={<AuthRouter />} />
+				<Route path='/auth/*' element={<AuthRouter />}  />
 				<Route path='/*' element={(
 					<PrivateRoute>
 						<MainRouter />

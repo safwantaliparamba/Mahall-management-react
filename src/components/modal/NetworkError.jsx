@@ -1,17 +1,26 @@
 import React from 'react'
+import { useDispatch } from 'react-redux'
 import styled, { keyframes } from 'styled-components'
 import NoNetwork from '../../assets/icons/NoNetwork'
+import { authActions } from '../../store/authSlice'
 
 const NetworkError = () => {
+	const dispatch = useDispatch()
+	const onClose = () => {
+		dispatch(authActions.setNetworkError({
+			networkError: false
+		}))
+	}
 	return (
 		<Wrapper>
 			<Content>
 				<div className="icon-wrapper">
 					<NoNetwork />
 				</div>
-				<h1>Check your internet connection</h1>
+				<h1>Check your Internet Connection</h1>
 				<div className="actions">
-					<Button onClick={e => window.location.reload()}>Retry</Button>
+					<CancelButton onClick={e => onClose()}>Cancel</CancelButton>
+					<Button onClick={e => window.location.reload()}>retry</Button>
 				</div>
 			</Content>
 		</Wrapper>
@@ -29,7 +38,7 @@ const Wrapper = styled.section`
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background-color: rgb(27 28 31);
+	background-color:rgb(27 28 31 / 61%);
 
 	*{
 		user-select: none;
@@ -73,6 +82,7 @@ const Content = styled.div`
 	.actions{
 		display: flex;
 		justify-content: flex-end;
+		gap: 22px;
 	}
 `
 
@@ -85,4 +95,9 @@ const Button = styled.button`
 	font-weight: 600;
 	border-radius: 10px;
 	margin-top: 52px;
+`
+const CancelButton = styled(Button)`
+	border: 2px solid #4B1989;
+	color:#4B1989;
+	background: none;
 `

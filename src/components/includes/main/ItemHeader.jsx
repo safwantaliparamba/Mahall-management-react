@@ -4,10 +4,29 @@ import searchIcon from '../../../assets/icons/Search.png'
 import Dots from '../../../assets/icons/Dots'
 import AddCustomers from '../../../assets/icons/AddCustomers'
 import Delete from '../../../assets/icons/Delete'
+import CloseInput from '../../../assets/icons/CloseInput'
 
 
-const ItemHeader = ({ header, setSearchKeyWord, deleteMethod, disableDelete, addNewHandler }) => {
+const ItemHeader = ({ header, searchHandler, deleteMethod, disableDelete, addNewHandler }) => {
 	const [hoverAddNew, setHoverAddNew] = useState(false)
+	const [showCloseBtn, setCloseBtn] = useState(false)
+	const [searchKeyword, setSearchKeyWord] = useState("")
+
+
+	function onSearchChange(e) {
+		let value = e.target.value
+		if (value === "") {
+			setCloseBtn(false)
+		} else {
+			setCloseBtn(true)
+		}
+		document.addEventListener("keydown",(e)=>{
+			if(e.keyCode === 13){
+				searchHandler(searchKeyword)
+			}
+		})
+		setSearchKeyWord(value)
+	}
 
 	return (
 		<>
@@ -19,11 +38,24 @@ const ItemHeader = ({ header, setSearchKeyWord, deleteMethod, disableDelete, add
 					<TopLeft>
 						<SearchBarContainer>
 							<input
-								type="search"
+								type="text"
 								placeholder="Search...."
-								onChange={e => setSearchKeyWord(e.target.value)}
+								value={searchKeyword}
+								onChange={onSearchChange}
 							/>
+							{showCloseBtn && (
+								<ClearButtonWrapper
+									onClick={e => {
+										setSearchKeyWord("")
+										searchHandler('')
+										setCloseBtn(false)
+									}}
+								>
+									<CloseInput />
+								</ClearButtonWrapper>
+							)}
 							<img
+								onClick={e => searchHandler(searchKeyword)}
 								src={searchIcon}
 								alt=""
 							/>
@@ -57,6 +89,18 @@ const ItemHeader = ({ header, setSearchKeyWord, deleteMethod, disableDelete, add
 }
 
 export default ItemHeader
+
+
+const ClearButtonWrapper = styled.div`
+	cursor: pointer;
+	margin: 0 8px;
+	display: flex;
+	align-items: center;
+	svg{
+		width:20px;
+		fill: #fff;
+	}
+`
 
 const MainWrapper = styled.section`
 	/* background-color: rgb(22 22 25); */

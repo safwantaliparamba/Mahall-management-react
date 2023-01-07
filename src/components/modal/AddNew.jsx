@@ -1,28 +1,86 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 // import { useApi } from '../hooks/useApi'
 
-const AddNew = ({ onClose, initialState, fields, header, addItem = () => { }, apiURI }) => {
-    const [params, setParams] = useState(initialState)
+const AddNew = ({ onClose, initialState, fields = [], header, addItem, apiURI }) => {
     // const api = useApi()
+    const [params, setParams] = useState(initialState)
+    const [_fields, setFields] = useState(() => {
+        fields.forEach((item) => {
+            if (item["required"] === false) {
+                return item
+            } else {
+                item["errorMessage"] = "This field is required"
+                item['error'] = false
+            }
+
+            return item
+        })
+
+        return fields
+    })
+    const [isError, setError] = useState(false)
 
 
-    const onChange = (e) => {
+    useEffect(() => {
+        document.body.style.overflow = "hidden"
+
+        return () => {
+            document.body.style.overflow = "unset"
+        }
+    }, [])
+
+    const onChange = (e, field) => {
         let data = { ...params }
+        let value = e.target.value
 
         if (e.target.type === "file") {
             data[e.target.name] = e.target.files[0]
         } else {
-            data[e.target.name] = e.target.value
+            data[e.target.name] = value
+        }
+        if (value.length <= 0) {
+            setError(true)
+            field.error = true
+        } else {
+            field.error = false
         }
 
         setParams(data)
     }
 
+    const validate = () => {
+        var error = true
+
+        for (let key of Object.keys(params)) {
+
+            if (params[key] === "") {
+                let tempFields = _fields
+
+                for (let property of tempFields) {
+                    if (property["required"] === false) {
+                        continue
+                    }
+                    if (property['name'] === key) {
+                        property.error = true;
+                        error = true;
+                        setError(true)
+                    }
+                }
+                setFields(tempFields)
+            } else {
+                error = false;
+            }
+        }
+        return error
+    }
+
     const submitHandler = () => {
-        console.log(params);
-        addItem(params)
-        onClose()
+        const hasError = validate()
+        if (!hasError) {
+            addItem(params)
+            onClose()
+        }
 
         // let formData = new FormData();
 
@@ -37,6 +95,7 @@ const AddNew = ({ onClose, initialState, fields, header, addItem = () => { }, ap
         //         console.log(data);
 
         //         if(statusCode === 6000){
+        //              addItem(params)
         //             onClose()
         //         }
         //     })
@@ -51,7 +110,7 @@ const AddNew = ({ onClose, initialState, fields, header, addItem = () => { }, ap
                         <h1>{header}</h1>
                     </div>
                     <Form>
-                        {fields.map((field, index) => (
+                        {_fields?.map((field, index) => (
                             <InputContainer key={index}>
                                 <label htmlFor={field.name}>{field.placeHolder}</label>
                                 <input
@@ -59,11 +118,12 @@ const AddNew = ({ onClose, initialState, fields, header, addItem = () => { }, ap
                                     id={field.name}
                                     name={field.name}
                                     placeholder={field.placeHolder}
-                                    value={field.type === "file" ? params[field.name][0] : params[field.name]}
-                                    onChange={onChange}
-                                    disabled={field?.disabled ? true : false}
+                                    value={field.type === "file" ? (params[field.name][0] || "") : params[field.name]}
+                                    onChange={e => onChange(e, field)}
+                                    disabled={field?.disabled}
+                                    multiple={field?.multiple}
                                 />
-                                {/* {params[field.name] === "" ? <p>Error occured</p> : null} */}
+                                {(isError && field.error) ? <p>{field.errorMessage}</p> : null}
                             </InputContainer>
                         ))}
                     </Form>
@@ -110,7 +170,7 @@ const fadeIn = keyframes`
 `
 
 const Content = styled.main`
-    width: 1150px;
+    width: 980px;
     max-width: 90%;
     min-height: 65vh;
     display: flex;
@@ -138,7 +198,7 @@ const Form = styled.div`
     margin-bottom: 42px;
 `
 const InputContainer = styled.div`
-    width: 49.3%;
+    width: 49%;
     margin-bottom: 6px;
 
     label{
@@ -169,6 +229,11 @@ const InputContainer = styled.div`
             cursor: not-allowed;
             user-select: none;
         }
+    }
+    p{
+        font-size: 12px;
+        letter-spacing: 1px;
+        color: red;
     }
 `
 

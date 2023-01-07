@@ -12,16 +12,7 @@ import ConfirmDelete from '../modal/ConfirmDelete'
 
 
 const Customers = () => {
-	const [, setSearchKeyWord] = useState('')
-	const [disableDelete, setDisableDelete] = useState(true)
-	const [showDeleteModal, setDeleteModal] = useState(false)
-	const [, setSelectAll] = useState(false)
-	const [selectedCustomers, setSelectedCustomers] = useState([])
-	const [toggleActionModal, setToggleActionModal] = useState(false)
-	const [activeItem, setActiveItem] = useState({})
-	const [addNew, setAddNew] = useState(false)
-	const [editModal, setEditModal] = useState(false)
-	const [customers, setCustomers] = useState([
+	const initialCustomers = [
 		{
 			id: 1,
 			name: 'Safwan p',
@@ -92,7 +83,18 @@ const Customers = () => {
 			blood_group: "",
 			image: "",
 		},
-	])
+	]
+
+
+	const [disableDelete, setDisableDelete] = useState(true)
+	const [showDeleteModal, setDeleteModal] = useState(false)
+	const [, setSelectAll] = useState(false)
+	const [selectedCustomers, setSelectedCustomers] = useState([])
+	const [toggleActionModal, setToggleActionModal] = useState(false)
+	const [activeItem, setActiveItem] = useState({})
+	const [addNew, setAddNew] = useState(false)
+	const [editModal, setEditModal] = useState(false)
+	const [customers, setCustomers] = useState(initialCustomers)
 	const addNewInitialState = {
 		name: '',
 		age: '',
@@ -138,6 +140,7 @@ const Customers = () => {
 			name: "image",
 			type: "file",
 			placeHolder: "Image",
+			required:false
 		},
 	]
 
@@ -190,8 +193,8 @@ const Customers = () => {
 	}
 	const editItem = (customer) => {
 		let index = customers.findIndex(item => item.id === customer.id)
-		
-		if(index !== -1) {
+
+		if (index !== -1) {
 			customers[index] = customer
 		}
 		setCustomers(customers)
@@ -201,78 +204,92 @@ const Customers = () => {
 		setToggleActionModal(false)
 	}
 
+	const searchHandler = (searchKeyword) => {
+
+		if (searchKeyword === "") {
+			setCustomers(initialCustomers)
+		} else {
+			const filteredCustomers = customers.filter(customer => customer.name.toLowerCase().includes(searchKeyword))
+			setCustomers(filteredCustomers)
+		}
+	}
+
 	return (
 		<>
 			<Helmet>
 				<title>Customers</title>
 			</Helmet>
-			<ItemHeader
-				header="Customers"
-				setSearchKeyWord={setSearchKeyWord}
-				addNewHandler={addNewHandler}
-				deleteMethod={() => setDeleteModal(true)}
-				disableDelete={disableDelete}
-			/>
-			<HeadContainer>
-				<SelectAll onClick={e => selectAllHandler()}>
-					{selectedCustomers === customers ? <Tick /> : null}
-				</SelectAll>
-				<Head>
-					<li className="sl-no">No</li>
-					<li>Name</li>
-					<li className='age'>Age</li>
-					<li>Mobile</li>
-					<li>Address</li>
-					<li>Job</li>
-					<li>Actions</li>
-				</Head>
-			</HeadContainer>
-			{customers.map((customer, index) => (
-				<ItemWrapper key={customer.id}>
-					<SelectItem
-						onClick={e => singleSelectHandler(customer)}
-					>
-						{selectedCustomers.find(item => item.id === customer.id) && <Tick />}
-					</SelectItem>
-					<Items>
-						<li className="sl-no">{customer.id}</li>
-						<li>{customer.name}</li>
-						<li className='age'>{customer.age}</li>
-						<li>{customer.mobile_number}</li>
-						<li className='address'>{customer.address.slice(0, 20)}{customer.address.length >= 15 && "..."}</li>
-						<li>{customer.job}</li>
-						<ActionContainer>
-							<EditButton onClick={e => {
-								setActiveItem(customer)
-								setEditModal(true)
-							}}>
-								<Edit />
-								<span>edit</span>
-							</EditButton>
-							<ViewIcon>
-								<View />
-								<span>view</span>
-							</ViewIcon>
-							<span
-								id={`dots-${index}`}
-								onClick={e => {
-									setToggleActionModal(!toggleActionModal)
-									setActiveItem(customer)
-								}}
+			<ItemContainer>
+				<ItemHeader
+					header="Customers"
+					addNewHandler={addNewHandler}
+					deleteMethod={() => setDeleteModal(true)}
+					disableDelete={disableDelete}
+					searchHandler={searchHandler}
+				/>
+				<HeadContainer>
+					<SelectAll onClick={e => selectAllHandler()}>
+						{selectedCustomers === customers ? <Tick /> : null}
+					</SelectAll>
+					<Head>
+						<li className="sl-no">No</li>
+						<li>Name</li>
+						<li className='age'>Age</li>
+						<li>Mobile</li>
+						<li>Address</li>
+						<li>Job</li>
+						<li>Actions</li>
+					</Head>
+				</HeadContainer>
+				<ItemsContainer>
+					{customers.map((customer, index) => (
+						<ItemWrapper key={customer.id}>
+							<SelectItem
+								onClick={e => singleSelectHandler(customer)}
 							>
-								<Dots />
-							</span>
-							{toggleActionModal && activeItem.id === customer.id && (
-								<MenuItemModal
-									item={toggleActionModal}
-									handler={handler}
-									index={index}
-								/>
-							)}
-						</ActionContainer>
-					</Items>
-				</ItemWrapper>
-			))}
+								{selectedCustomers.find(item => item.id === customer.id) && <Tick />}
+							</SelectItem>
+							<Items>
+								<li className="sl-no">{customer.id}</li>
+								<li>{customer.name ? customer.name : "----------"}</li>
+								<li className='age'>{customer.age ? customer.age : "-----"}</li>
+								<li>{customer.mobile_number ? customer.mobile_number : "----------"}</li>
+								<li className='address'>{customer.address.slice(0, 15)}{customer.address.length >= 15 && "..."}{!customer.address && "----------"}</li>
+								<li>{customer.job ? customer.job : "----------"}</li>
+								<ActionContainer>
+									<EditButton onClick={e => {
+										setActiveItem(customer)
+										setEditModal(true)
+									}}>
+										<Edit />
+										<span>edit</span>
+									</EditButton>
+									<ViewIcon>
+										<View />
+										<span>view</span>
+									</ViewIcon>
+									<span
+										id={`dots-${index}`}
+										onClick={e => {
+											setToggleActionModal(!toggleActionModal)
+											setActiveItem(customer)
+										}}
+									>
+										<Dots />
+									</span>
+									{toggleActionModal && activeItem.id === customer.id && (
+										<MenuItemModal
+											item={toggleActionModal}
+											handler={handler}
+											index={index}
+										/>
+									)}
+								</ActionContainer>
+							</Items>
+						</ItemWrapper>
+					))}
+				</ItemsContainer>
+			</ItemContainer>
 			{addNew && (
 				<AddNew
 					onClose={() => setAddNew(false)}
@@ -544,5 +561,15 @@ const MenuItems = styled.div`
 				}
 			}
 		}
+	}
+`
+
+const ItemContainer = styled.main``
+const ItemsContainer = styled.section`
+	/* height: calc(100vh - (96px+88px+92px+50px+300px)); */
+	overflow-y: scroll;
+	height: 590px;
+	::-webkit-scrollbar{
+		display: none;
 	}
 `
