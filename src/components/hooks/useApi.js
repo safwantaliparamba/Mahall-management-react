@@ -1,4 +1,3 @@
-import { MiddlewareArray } from "@reduxjs/toolkit";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { authActions } from "../../store/authSlice"
@@ -40,6 +39,7 @@ const useAuthApi = () => {
             return error;
         })
 
+        return authenticatedAPI
 }
 
 export default useAuthApi

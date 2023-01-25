@@ -1,7 +1,13 @@
+// default react imports 
 import React, { useEffect, useState } from 'react'
-import ItemHeader from '../includes/main/ItemHeader'
+// 3rd party package imports 
 import styled from 'styled-components'
 import { Helmet } from 'react-helmet'
+import { useQueryClient, useMutation, useQuery } from 'react-query'
+import ReactPaginate from 'react-paginate';
+
+// local imports 
+import ItemHeader from '../includes/main/ItemHeader'
 import Tick from "../../assets/icons/Tick"
 import Edit from '../../assets/icons/Edit'
 import Dots from '../../assets/icons/Dots'
@@ -9,83 +15,12 @@ import View from '../../assets/icons/View'
 import useClickOutside from '../hooks/useClickOutside'
 import AddNew from '../modal/AddNew'
 import ConfirmDelete from '../modal/ConfirmDelete'
+import useAuthApi from '../hooks/useApi'
+import SectionLoader from '../../assets/loaders/SectionLoader'
+import { addNewFields, addNewInitialState } from '../data/customers'
 
 
 const Customers = () => {
-	const initialCustomers = [
-		{
-			id: 1,
-			name: 'Safwan p',
-			age: 20,
-			mobile_number: 7994720767,
-			address: "Parottakath house pulimparamba Taliparamba",
-			job: "Software engineer",
-			blood_group: "",
-			image: "",
-		},
-		{
-			id: 2,
-			name: 'Hiyas usman',
-			age: 19,
-			mobile_number: 9526612248,
-			address: "house pulimparamba Taliparamba",
-			job: "CA",
-			blood_group: "",
-			image: "",
-		},
-		{
-			id: 3,
-			name: 'Safwan p',
-			age: 20,
-			mobile_number: 7994720767,
-			address: "Parottakath house pulimparamba Taliparamba",
-			job: "Software engineer",
-			blood_group: "",
-			image: "",
-		},
-		{
-			id: 4,
-			name: 'Hiyas usman',
-			age: 19,
-			mobile_number: 9526612248,
-			address: "house pulimparamba Taliparamba",
-			job: "CA",
-			blood_group: "",
-			image: "",
-		},
-		{
-			id: 5,
-			name: 'Safwan p',
-			age: 20,
-			mobile_number: 7994720767,
-			address: "Parottakath house pulimparamba Taliparamba",
-			job: "Software engineer",
-			blood_group: "",
-			image: "",
-		},
-		{
-			id: 6,
-			name: 'Hiyas usman',
-			age: 19,
-			mobile_number: 9526612248,
-			address: "house pulimparamba Taliparamba",
-			job: "CA",
-			blood_group: "",
-			image: "",
-		},
-		{
-			id: 7,
-			name: 'Safwan p',
-			age: 20,
-			mobile_number: 7994720767,
-			address: "Parottakath house pulimparamba Taliparamba",
-			job: "Software engineer",
-			blood_group: "",
-			image: "",
-		},
-	]
-
-
 	const [disableDelete, setDisableDelete] = useState(true)
 	const [showDeleteModal, setDeleteModal] = useState(false)
 	const [, setSelectAll] = useState(false)
@@ -94,68 +29,16 @@ const Customers = () => {
 	const [activeItem, setActiveItem] = useState({})
 	const [addNew, setAddNew] = useState(false)
 	const [editModal, setEditModal] = useState(false)
-	const [customers, setCustomers] = useState(initialCustomers)
-	const addNewInitialState = {
-		name: '',
-		age: '',
-		mobile_number: '',
-		address: '',
-		job: '',
-		blood_group: '',
-		image: '',
-	}
+	const [customers, setCustomers] = useState([])
+	const [hasError, setError] = useState(false)
 
-	const addNewFields = [
-		{
-			name: "name",
-			type: "text",
-			placeHolder: "Name",
-		},
-		{
-			name: "age",
-			type: "number",
-			placeHolder: "Age",
-		},
-		{
-			name: "mobile_number",
-			type: "number",
-			placeHolder: "Mobile Number",
-		},
-		{
-			name: "address",
-			type: "text",
-			placeHolder: "House name",
-		},
-		{
-			name: "job",
-			type: "text",
-			placeHolder: "Job",
-		},
-		{
-			name: "blood_group",
-			type: "text",
-			placeHolder: "Blood group",
-		},
-		{
-			name: "image",
-			type: "file",
-			placeHolder: "Image",
-			required:false
-		},
-	]
+	// pagination states 
+	const [currentPage, setCurrentPage] = useState(1)
+	const [firstItemCount, setFirstItemCount] = useState(1)
 
-	const deleteHandler = () => {
-		let filteredCustomers = customers
-		selectedCustomers.forEach(customer => {
-			filteredCustomers = filteredCustomers.filter(cust => cust.id !== customer.id)
-		})
-		setCustomers(filteredCustomers)
-		setDisableDelete(true)
-	}
+	const queryClient = useQueryClient()
 
-	const addNewHandler = () => {
-		setAddNew(true)
-	}
+	const api = useAuthApi()
 
 	useEffect(() => {
 		if (selectedCustomers.length === 0) {
@@ -165,39 +48,96 @@ const Customers = () => {
 		}
 	}, [selectedCustomers])
 
+	const addNewCustomer = async (customer) => {
+		return api
+			.post('/customers/create/', customer)
+			.then(response => {
+				const { statusCode, data } = response.data
+
+				if (statusCode === 6000) {
+					setAddNew(false)
+					return data
+				} else {
+					return data.message
+				}
+			})
+	}
+
+	const fetchCustomers = async () => {
+		return api
+			.get(`/customers/?page=${currentPage}`)
+			.then(response => {
+				const { data, statusCode } = response.data
+
+				if (statusCode === 6000) {
+					setError(false)
+					setCurrentPage(data.paginated_data.current_page)
+					setFirstItemCount(data.paginated_data.first_item)
+					return data
+				} else {
+					setError(true)
+					return data
+				}
+			})
+	}
+
+	const { data, isError, isLoading, error, isPreviousData } = useQuery(['customers', currentPage], fetchCustomers, {
+		keepPreviousData: true
+	})
+
+
+	const newCustomer = useMutation(['customers'], addNewCustomer, {
+		onSuccess: (data, customer, context) => {
+			queryClient.invalidateQueries(["customers", currentPage])
+			setAddNew(false)
+		},
+	})
+
+	function deleteHandler() {
+		// let filteredCustomers = customers
+		// selectedCustomers.forEach(customer => {
+		// 	filteredCustomers = filteredCustomers.filter(cust => cust.id !== customer.id)
+		// })
+		// setCustomers(filteredCustomers)
+		// setDisableDelete(true)
+	}
+
+	const addNewHandler = () => {
+		setAddNew(true)
+	}
+
 	const selectAllHandler = () => {
-		if (selectedCustomers !== customers) {
-			setSelectedCustomers(customers)
-			setSelectAll(true)
-		} else {
-			setSelectedCustomers([])
-			setSelectAll(false)
-			setDisableDelete(true)
-		}
+		// if (selectedCustomers !== customers) {
+		// 	setSelectedCustomers(customers)
+		// 	setSelectAll(true)
+		// } else {
+		// 	setSelectedCustomers([])
+		// 	setSelectAll(false)
+		// 	setDisableDelete(true)
+		// }
 	}
 
 	const singleSelectHandler = (customer) => {
-		let isIncluded = selectedCustomers.find(item => item.id === customer.id)
-		if (!isIncluded) {
-			setSelectedCustomers(prev => [...prev, customer])
+		// let isIncluded = selectedCustomers.find(item => item.id === customer.id)
+		// if (!isIncluded) {
+		// 	setSelectedCustomers(prev => [...prev, customer])
 
-		} else {
-			let filteredItems = selectedCustomers.filter(item => item.id !== customer.id)
-			setSelectedCustomers(filteredItems)
-		}
+		// } else {
+		// 	let filteredItems = selectedCustomers.filter(item => item.id !== customer.id)
+		// 	setSelectedCustomers(filteredItems)
+		// }
 
 	}
-
-	const addItem = (customer) => {
-		setCustomers([...customers, { id: customers[customers.length - 1].id + 1, ...customer }])
+	const addItem = (customer = {}) => {
+		newCustomer.mutate(customer)
 	}
 	const editItem = (customer) => {
-		let index = customers.findIndex(item => item.id === customer.id)
+		// let index = customers.findIndex(item => item.id === customer.id)
 
-		if (index !== -1) {
-			customers[index] = customer
-		}
-		setCustomers(customers)
+		// if (index !== -1) {
+		// 	customers[index] = customer
+		// }
+		// setCustomers(customers)
 	}
 
 	const handler = () => {
@@ -206,13 +146,15 @@ const Customers = () => {
 
 	const searchHandler = (searchKeyword) => {
 
-		if (searchKeyword === "") {
-			setCustomers(initialCustomers)
-		} else {
-			const filteredCustomers = customers.filter(customer => customer.name.toLowerCase().includes(searchKeyword))
-			setCustomers(filteredCustomers)
-		}
+		// if (searchKeyword === "") {
+		// 	setCustomers([])
+		// } else {
+		// 	const filteredCustomers = customers.filter(customer => customer.name.toLowerCase().includes(searchKeyword))
+		// 	setCustomers(filteredCustomers)
+		// }
 	}
+
+	if (isError) return <h1 style={{ color: "#fff" }}>{error.message} isError</h1>
 
 	return (
 		<>
@@ -242,7 +184,13 @@ const Customers = () => {
 					</Head>
 				</HeadContainer>
 				<ItemsContainer>
-					{customers.map((customer, index) => (
+					{isLoading && (
+						<LoaderWrapper>
+							<SectionLoader />
+						</LoaderWrapper>
+					)}
+					{hasError && <h1>Something went wrong</h1>}
+					{data?.data?.map((customer, index) => (
 						<ItemWrapper key={customer.id}>
 							<SelectItem
 								onClick={e => singleSelectHandler(customer)}
@@ -250,11 +198,11 @@ const Customers = () => {
 								{selectedCustomers.find(item => item.id === customer.id) && <Tick />}
 							</SelectItem>
 							<Items>
-								<li className="sl-no">{customer.id}</li>
+								<li className="sl-no">{firstItemCount + index}</li>
 								<li>{customer.name ? customer.name : "----------"}</li>
 								<li className='age'>{customer.age ? customer.age : "-----"}</li>
 								<li>{customer.mobile_number ? customer.mobile_number : "----------"}</li>
-								<li className='address'>{customer.address.slice(0, 15)}{customer.address.length >= 15 && "..."}{!customer.address && "----------"}</li>
+								<li className='address'>{customer.address && customer.address.slice(0, 15)}{customer.address && customer.address.length >= 15 && "..."}{!customer.address && "----------"}</li>
 								<li>{customer.job ? customer.job : "----------"}</li>
 								<ActionContainer>
 									<EditButton onClick={e => {
@@ -289,6 +237,26 @@ const Customers = () => {
 						</ItemWrapper>
 					))}
 				</ItemsContainer>
+				{!isLoading && (
+					<PaginationContainer>
+						<ReactPaginate
+							pageCount={data?.paginated_data?.total_pages}
+							onPageChange={({ selected }) => { !isPreviousData && setCurrentPage(selected + 1) }}
+							activeLinkClassName='active-link'
+							previousLabel='<'
+							nextLabel='>'
+							disabledLinkClassName='disabled-link'
+							breakLinkClassName='break-link'
+							activeClassName={'item active '}
+							breakClassName={'item break-me '}
+							breakLabel={'...'}
+							containerClassName={'pagination'}
+							disabledClassName={'disabled-page'}
+							nextClassName={"item next"}
+
+						/>
+					</PaginationContainer>
+				)}
 			</ItemContainer>
 			{addNew && (
 				<AddNew
@@ -297,6 +265,7 @@ const Customers = () => {
 					fields={addNewFields}
 					header="Create Customer"
 					addItem={addItem}
+					apiURI="/customers/create/"
 				/>
 			)}
 			{editModal && (
@@ -360,9 +329,16 @@ const MenuItemModal = ({ handler, item, index }) => {
 export default Customers
 
 
+const LoaderWrapper = styled.section`
+	width: 100%;
+	height: 590px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+`
 
 const HeadContainer = styled.div`
-	margin: 24px 0;
+	margin: 22px 0;
 	margin-bottom: 16px;
 	display: flex;
 	align-items: center;
@@ -567,9 +543,91 @@ const MenuItems = styled.div`
 const ItemContainer = styled.main``
 const ItemsContainer = styled.section`
 	/* height: calc(100vh - (96px+88px+92px+50px+300px)); */
-	overflow-y: scroll;
-	height: 590px;
+	/* overflow-y: scroll; */
+	height: 540px;
 	::-webkit-scrollbar{
 		display: none;
 	}
+`
+
+const PaginationContainer = styled.section`
+	display: flex;
+	justify-content: center;
+	padding-top: 12px;
+
+	*{
+		user-select: none;
+	}
+
+	.pagination {
+		display: flex;
+		gap: 12px;
+
+		li{
+
+			a{
+				background-color:#4b198994;
+				width: 35px;
+				height: 35px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-weight: 600;
+				border-radius: 12px;
+				cursor: pointer;
+				color: #9d9d9d;
+			}
+		}
+	}
+
+	.item {
+		/* display: flex;
+		background-color: #4b1989;
+		width: 40px;
+		height: 40px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border-radius: 50%;
+		cursor: pointer; */
+		a{
+			color: #4b1989;
+		}
+	}
+
+	.break-me {}
+
+	.next {
+		margin-left: 32px;
+		a{
+			/* border-radius: 50% !important; */
+			/* border: 1px solid #fff; */
+		}
+	}
+
+	.active {
+		a{
+			border: 1px solid #fff;
+			background-color: #4b1989 !important;
+			color: #fff !important;
+		}
+	}
+
+	.pagination-page {}
+
+	.previous {
+		margin-right: 32px;
+		a{
+			/* border-radius: 50% !important; */
+			/* border: 1px solid #fff; */
+		}
+	}
+	.disabled-page {
+		a{
+			cursor: not-allowed !important;
+			border: none;
+			color: #111 !important;
+		}
+	}
+
 `

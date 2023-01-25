@@ -21,7 +21,7 @@ const ItemHeader = ({ header, searchHandler, deleteMethod, disableDelete, addNew
 			setCloseBtn(true)
 		}
 		document.addEventListener("keydown",(e)=>{
-			if(e.keyCode === 13){
+			if(e.code === "Enter"){
 				searchHandler(searchKeyword)
 			}
 		})
