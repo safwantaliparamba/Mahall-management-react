@@ -1,11 +1,10 @@
 // default react imports 
-import React, { useEffect, useState } from 'react'
+import React, {  useState } from 'react'
 // 3rd party package imports 
 import styled from 'styled-components'
 import { Helmet } from 'react-helmet'
 import { useQueryClient, useMutation, useQuery } from 'react-query'
 import ReactPaginate from 'react-paginate';
-
 // local imports 
 import ItemHeader from '../includes/main/ItemHeader'
 import Tick from "../../assets/icons/Tick"
@@ -15,42 +14,41 @@ import View from '../../assets/icons/View'
 import useClickOutside from '../hooks/useClickOutside'
 import AddNew from '../modal/AddNew'
 import ConfirmDelete from '../modal/ConfirmDelete'
-import useAuthApi from '../hooks/useApi'
 import SectionLoader from '../../assets/loaders/SectionLoader'
 import { addNewFields, addNewInitialState } from '../data/customers'
+import { authenticatedAPI } from '../../axiosConfig';
 
 
 const Customers = () => {
 	const [disableDelete, setDisableDelete] = useState(true)
 	const [showDeleteModal, setDeleteModal] = useState(false)
-	const [, setSelectAll] = useState(false)
+	// const [, setSelectAll] = useState(false)
 	const [selectedCustomers, setSelectedCustomers] = useState([])
 	const [toggleActionModal, setToggleActionModal] = useState(false)
 	const [activeItem, setActiveItem] = useState({})
 	const [addNew, setAddNew] = useState(false)
 	const [editModal, setEditModal] = useState(false)
-	const [customers, setCustomers] = useState([])
+	// const [customers, setCustomers] = useState([])
 	const [hasError, setError] = useState(false)
-
 	// pagination states 
 	const [currentPage, setCurrentPage] = useState(1)
 	const [firstItemCount, setFirstItemCount] = useState(1)
+	const [actionModalTop, setModalTop] = useState(false)
+
 
 	const queryClient = useQueryClient()
 
-	const api = useAuthApi()
-
-	useEffect(() => {
-		if (selectedCustomers.length === 0) {
-			setDisableDelete(true)
-		} else {
-			setDisableDelete(false)
-		}
-	}, [selectedCustomers])
+	// useEffect(() => {
+	// 	if (selectedCustomers.length === 0) {
+	// 		setDisableDelete(true)
+	// 	} else {
+	// 		setDisableDelete(false)
+	// 	}
+	// }, [selectedCustomers])
 
 	const addNewCustomer = async (customer) => {
-		return api
-			.post('/customers/create/', customer)
+		return authenticatedAPI
+			.post('/customers/chief/create/', customer)
 			.then(response => {
 				const { statusCode, data } = response.data
 
@@ -63,33 +61,80 @@ const Customers = () => {
 			})
 	}
 
+	const editCustomer = async (customer) => {
+		console.log(activeItem,"activeItem----------------");
+		return authenticatedAPI
+			.post(`/customers/chief/update/${activeItem.id}/`, customer)
+			.then(response => {
+				const { statusCode, data } = response.data
+
+				console.log(data);
+
+				if (statusCode === 6000) {
+					setAddNew(false)
+					return data
+				} else {
+					return data.message
+				}
+			})
+	}
+
 	const fetchCustomers = async () => {
-		return api
-			.get(`/customers/?page=${currentPage}`)
+		return authenticatedAPI
+			.get(`/customers/chief/customers/`, {
+				params: {
+					page: currentPage
+				}
+			})
 			.then(response => {
 				const { data, statusCode } = response.data
 
 				if (statusCode === 6000) {
 					setError(false)
-					setCurrentPage(data.paginated_data.current_page)
-					setFirstItemCount(data.paginated_data.first_item)
+					setCurrentPage(data?.current_page)
+					setFirstItemCount(data?.first_item)
+
 					return data
+
 				} else {
 					setError(true)
+
 					return data
 				}
 			})
 	}
 
-	const { data, isError, isLoading, error, isPreviousData } = useQuery(['customers', currentPage], fetchCustomers, {
-		keepPreviousData: true
+	// caches.open("images").then((cache)=>{
+	// 	cache.add("http://127.0.0.1:8000/media/customers/profile/Eren_yeager_squfPuq.png")
+	// 	console.log('success');
+	// }).catch(e => console.log("error "))
+
+	const { data, isError, isLoading, error } = useQuery(['customers', currentPage], fetchCustomers, {
+		keepPreviousData: true,
+		// select: (data) => {
+		// 	return data.data
+		// },
 	})
 
 
 	const newCustomer = useMutation(['customers'], addNewCustomer, {
 		onSuccess: (data, customer, context) => {
-			queryClient.invalidateQueries(["customers", currentPage])
+			queryClient.invalidateQueries(["customers"])
 			setAddNew(false)
+		},
+		onError: (error, customer, context) => {
+			console.log(error);
+		},
+	})
+
+	const updateCustomer = useMutation(["customers",currentPage],editCustomer,{
+		onSuccess: (data, customer, context) => {
+			console.log('on success');
+			queryClient.invalidateQueries(["customers",currentPage])
+			setEditModal(false)
+		},
+		onError: (error, customer, context) => {
+			console.log(error);
 		},
 	})
 
@@ -131,7 +176,9 @@ const Customers = () => {
 	const addItem = (customer = {}) => {
 		newCustomer.mutate(customer)
 	}
-	const editItem = (customer) => {
+	const editItem = (customer={}) => {
+		updateCustomer.mutate(customer)
+
 		// let index = customers.findIndex(item => item.id === customer.id)
 
 		// if (index !== -1) {
@@ -154,8 +201,6 @@ const Customers = () => {
 		// }
 	}
 
-	if (isError) return <h1 style={{ color: "#fff" }}>{error.message} isError</h1>
-
 	return (
 		<>
 			<Helmet>
@@ -169,27 +214,29 @@ const Customers = () => {
 					disableDelete={disableDelete}
 					searchHandler={searchHandler}
 				/>
-				<HeadContainer>
-					<SelectAll onClick={e => selectAllHandler()}>
-						{selectedCustomers === customers ? <Tick /> : null}
-					</SelectAll>
-					<Head>
-						<li className="sl-no">No</li>
-						<li>Name</li>
-						<li className='age'>Age</li>
-						<li>Mobile</li>
-						<li>Address</li>
-						<li>Job</li>
-						<li>Actions</li>
-					</Head>
-				</HeadContainer>
+				{data?.data && (
+					<HeadContainer>
+						<SelectAll onClick={e => selectAllHandler()}>
+							{/* {selectedCustomers === customers ? <Tick /> : null} */}
+						</SelectAll>
+						<Head>
+							<li className="sl-no">No</li>
+							<li>Name</li>
+							<li className='age'>Age</li>
+							<li>Mobile</li>
+							<li>Address</li>
+							<li>Job</li>
+							<li>Actions</li>
+						</Head>
+					</HeadContainer>
+				)}
 				<ItemsContainer>
 					{isLoading && (
 						<LoaderWrapper>
 							<SectionLoader />
 						</LoaderWrapper>
 					)}
-					{hasError && <h1>Something went wrong</h1>}
+					{(hasError || isError) && <h1>{error?.message || "Something went wrong"} </h1>}
 					{data?.data?.map((customer, index) => (
 						<ItemWrapper key={customer.id}>
 							<SelectItem
@@ -221,6 +268,11 @@ const Customers = () => {
 										onClick={e => {
 											setToggleActionModal(!toggleActionModal)
 											setActiveItem(customer)
+											if (e.clientY + 230 > window.innerHeight) {
+												setModalTop(true)
+											} else {
+												setModalTop(false)
+											}
 										}}
 									>
 										<Dots />
@@ -230,6 +282,7 @@ const Customers = () => {
 											item={toggleActionModal}
 											handler={handler}
 											index={index}
+											top={actionModalTop}
 										/>
 									)}
 								</ActionContainer>
@@ -237,11 +290,23 @@ const Customers = () => {
 						</ItemWrapper>
 					))}
 				</ItemsContainer>
-				{!isLoading && (
+
+				{(!isLoading  && data?.data)&& (
 					<PaginationContainer>
 						<ReactPaginate
-							pageCount={data?.paginated_data?.total_pages}
-							onPageChange={({ selected }) => { !isPreviousData && setCurrentPage(selected + 1) }}
+							pageCount={data?.total_pages}
+							// onPageChange={({ selected }) => {
+							// 	(!isPreviousData && isStale) && setCurrentPage(selected + 1)
+							// }}
+							// onClick={({selected,isPrevious,isNext,event,nextSelectedPage,})=> {
+							// 	// console.log({isPrevious,isNext,event});
+							// 	if(isPrevious && selected){
+							// 		setCurrentPage(selected )
+							// 	}else if (isNext){
+							// 		setCurrentPage(selected + 1)
+							// 	}
+
+							// }}
 							activeLinkClassName='active-link'
 							previousLabel='<'
 							nextLabel='>'
@@ -253,11 +318,11 @@ const Customers = () => {
 							containerClassName={'pagination'}
 							disabledClassName={'disabled-page'}
 							nextClassName={"item next"}
-
 						/>
 					</PaginationContainer>
 				)}
 			</ItemContainer>
+
 			{addNew && (
 				<AddNew
 					onClose={() => setAddNew(false)}
@@ -268,6 +333,7 @@ const Customers = () => {
 					apiURI="/customers/create/"
 				/>
 			)}
+
 			{editModal && (
 				<AddNew
 					onClose={() => setEditModal(false)}
@@ -277,6 +343,7 @@ const Customers = () => {
 					addItem={editItem}
 				/>
 			)}
+
 			{showDeleteModal &&
 				<ConfirmDelete
 					deleteHandler={deleteHandler}
@@ -294,14 +361,25 @@ const Customers = () => {
 }
 
 
-const MenuItemModal = ({ handler, item, index }) => {
+const MenuItemModal = ({ handler, item, index, top }) => {
 	const parentRef = document.getElementById(`dots-${index}`)
-
 	const modalRef = useClickOutside(handler, parentRef)
 
+	const styles = () => {
+		if (top) {
+			return {
+				borderBottomRightRadius
+					: 0
+			}
+		}
+		return {
+			borderTopRightRadius: 0
+		}
+	}
+
 	return (
-		<MenuItems ref={modalRef}>
-			<ul>
+		<MenuItems ref={modalRef} top={top}>
+			<ul style={{ ...styles() }}>
 				<li>
 					<span>
 						<View />
@@ -391,7 +469,9 @@ const SelectAll = styled.div`
 
 const ItemWrapper = styled.div`
 	display: flex;
+	/* width: 100%; */
 	margin-bottom: 4px;
+	transition: all 1s ease-in-out;
 	`
 const Items = styled.ul`
 	display: flex;
@@ -479,7 +559,7 @@ const ActionContainer = styled.li`
 const MenuItems = styled.div`
 	position:absolute;
 	right:38px;
-	top:42px;
+	top:${({ top }) => top ? "-119px" : "42px"};
 	z-index:1000;
 	border-radius: 10px;
 	
@@ -488,10 +568,8 @@ const MenuItems = styled.div`
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		gap: .6px;
 		width: 200px;
 		border-radius: 8px;
-		border-top-right-radius: 0%;
 		overflow: hidden;
 		border:1px solid rgb(157, 153, 153);
 		

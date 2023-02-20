@@ -82,6 +82,7 @@ const Right = styled.div`
 
 	span{
 		color: #fff;
+		text-transform: capitalize;
 	}
 `
 

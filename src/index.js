@@ -13,11 +13,11 @@ const queryClient = new QueryClient()
 
 root.render(
 	<BrowserRouter>
-		<QueryClientProvider client={queryClient}>
-			<Provider store={store}>
+		<Provider store={store}>
+			<QueryClientProvider client={queryClient}>
 				<App />
-			</Provider>
-			<ReactQueryDevtools />
-		</QueryClientProvider>
+				<ReactQueryDevtools />
+			</QueryClientProvider>
+		</Provider>
 	</BrowserRouter>
 );

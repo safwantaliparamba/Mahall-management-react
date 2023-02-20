@@ -5,12 +5,12 @@ import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import buttonAnimation from '../../assets/lottie/buttonLoader.json'
-import { useApi } from '../hooks/useApi'
 import { authActions } from '../../store/authSlice'
 import show from '../../assets/icons/eye.svg'
 import hide from '../../assets/icons/hide.svg'
 import message from '../../assets/icons/message.svg'
 import lock from '../../assets/icons/lock.svg'
+import { api } from '../../axiosConfig'
 
 
 const Login = () => {
@@ -24,7 +24,6 @@ const Login = () => {
 
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
-	const api = useApi()
 
 	const loginHandler = () => {
 		const data = {
@@ -139,7 +138,8 @@ const Login = () => {
 						{errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
 						<Button
 							className={(isValidUsername && isValidPassword) ? "" : "invalid"}
-							onClick={loginHandler}>{isLoading ? (
+							onClick={loginHandler}>
+							{isLoading ? (
 								<Lottie
 									options={defaultOptions}
 									height={200}

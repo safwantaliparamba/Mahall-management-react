@@ -1,11 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { Cropper } from 'react-cropper'
 import styled, { keyframes } from 'styled-components'
 import profile from "../../assets/icons/user.svg"
+import "cropperjs/dist/cropper.css";
+import Edit from '../../assets/icons/Edit';
+import useNoScroll from '../hooks/useNoScroll';
 
 
 const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
     // initial state 
     const [params, setParams] = useState(initialState)
+    const [cropActive, setActive] = useState(false)
     // input fields 
     const [_fields, setFields] = useState(() => {
 
@@ -25,7 +30,7 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
         return fields
     })
     const [imageUrl, setUrl] = useState({})
-
+    const [tempImg, setTempImg] = useState({})
     const [isImageExists] = useState(() => {
         var url = {}
         let exists = []
@@ -44,14 +49,8 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
         }
     })
 
-
-    useEffect(() => {
-        document.body.style.overflow = "hidden"
-
-        return () => {
-            document.body.style.overflow = "unset"
-        }
-    }, [])
+    const cropperRef = useRef()
+    useNoScroll()
 
     // onchange function for all inputs 
     const onChange = (e, field) => {
@@ -73,6 +72,22 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
         setParams(data)
     }
 
+    const onCropChange = () => {
+        const imageElement = cropperRef?.current;
+        const cropper = imageElement?.cropper;
+        // setImage(cropper.getCroppedCanvas().toDataURL());
+
+        let field = _fields.filter(item => item.name === Object.keys(imageUrl)[0])[0] || ""
+
+        let data = { ...params }
+        data[field.name] = cropper?.getCroppedCanvas().toDataURL()
+
+        var imgObj = {}
+        imgObj[Object.keys(imageUrl)[0]] = cropper?.getCroppedCanvas().toDataURL()
+        setTempImg(imgObj)
+        setParams(data)
+    }
+
     // form validation function 
     const validate = () => {
         var isValid = []
@@ -84,7 +99,7 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
                 isValid.push(false)
 
                 return item
-            } else if (params[item['name']].length === 0) {
+            } else if (params[item['name']]?.length === 0) {
                 isValid.push(true)
                 item.error = true;
 
@@ -93,8 +108,8 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
 
             return item;
         })
-
         setFields(tempFields)
+
         return isValid
     }
 
@@ -130,73 +145,153 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
         return prop
     }
 
+    const input1 = useRef()
+    const input2 = useRef()
+    const input3 = useRef()
+
+    const [prevTarget, setTarget] = useState(false)
+
+    const onBlur = (e) => {
+        setTarget(e.target)
+    }
+
+    console.log(prevTarget);
+
+    const onFocus = (e) => {
+        if (prevTarget) {
+            if (prevTarget === e.target){
+                console.log("same");
+            }else{
+                e.target.blur()
+            }
+
+        } else {
+            console.log("none");
+        }
+    }
+
+
     return (
-        <Wrapper onClick={() => onClose()}>
-            <Content onClick={e => e.stopPropagation()}>
-                <div>
-                    <div className="top">
-                        <h1>{header}</h1>
-                    </div>
-                    {isImageExists && (
-                        <ImageContainer>
-                            <img
-                                loading='lazy'
-                                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
-                                src={imageUrl.image ? imageUrl.image : profile}
-                                alt="something"
-                            />
-                            <input
-                                type="file"
-                                hidden
-                                id="image"
-                                name={Object.keys(imageUrl)[0]}
-                                onChange={e => {
-                                    if (e.target.files && e.target.files[0]) {
-                                        let field = _fields.filter(item => item.name === Object.keys(imageUrl)[0])[0] || ""
-
-                                        onChange(e, field)
-
-                                        let reader = new FileReader();
-
-                                        reader.onload = (e) => {
-                                            var imgObj = {}
-                                            imgObj[Object.keys(imageUrl)[0]] = e.target.result
-                                            setUrl(imgObj)
-                                        };
-                                        reader.readAsDataURL(e.target.files[0])
-                                    }
+        <Wrapper onClick={() => !cropActive && onClose()}>
+            <Content
+                onClick={e => {
+                    e.stopPropagation()
+                    setTarget(false)
+                }}
+                className={cropActive && "crop-active"}
+            >
+                {(isImageExists && cropActive && imageUrl.image) ? (
+                    <CropperWrapper
+                    >
+                        <Cropper
+                            style={{
+                                width: "auto",
+                                maxWidth: "600px",
+                                height: "auto",
+                                maxHeight: "600px"
+                            }}
+                            aspectRatio={1 / 1}
+                            src={imageUrl?.image}
+                            ref={cropperRef}
+                            crop={onCropChange}
+                        />
+                        <CropBtnWrapper>
+                            <CropButton
+                                onClick={() => {
+                                    setActive(false)
+                                    setUrl(tempImg)
                                 }}
-                            />
-                            <label htmlFor="image">choose image</label>
-                        </ImageContainer>
-                    )}
-                    <Form >
-                        {_fields?.filter(item => item.type !== "file").map((field, index) => (
+                            >
+                                Crop
+                            </CropButton>
+                        </CropBtnWrapper>
+                    </CropperWrapper>
+                ) : (
+                    <>
+                        <div>
+                            <div className="top">
+                                <h1>{header}</h1>
+                            </div>
+                            {isImageExists && (
+                                <ImageContainer>
+                                    <img
+                                        loading='lazy'
+                                        style={{ width: "100px", height: "100px", borderRadius: "50%" }}
+                                        src={imageUrl.image ? `http://localhost:8000/media/${imageUrl.image}` : profile}
+                                        alt="something"
+                                    />
+                                    <input
+                                        type="file"
+                                        hidden
+                                        id="image"
+                                        name={Object.keys(imageUrl)[0]}
+                                        onChange={e => {
+                                            if (e.target.files && e.target.files[0]) {
+                                                let field = _fields.filter(item => item.name === Object.keys(imageUrl)[0])[0] || ""
 
-                            <InputContainer key={index}>
-                                <label htmlFor={field.name}>{field.placeHolder}</label>
-                                <input
-                                    {...inputProps(field)}
-                                    onChange={e => onChange(e, field)}
-                                />
-                                {(field.error) && <p>{field.errorMessage}</p>}
-                            </InputContainer>
+                                                onChange(e, field)
 
-                        ))}
-                    </Form>
-                </div>
-                <Bottom>
-                    <div className="buttons-wrapper">
-                        <Button onClick={onClose}>Cancel</Button>
-                        <SaveButton onClick={submitHandler}>Save</SaveButton>
-                    </div>
-                </Bottom>
+                                                let reader = new FileReader();
+
+                                                reader.onload = (e) => {
+                                                    var imgObj = {}
+                                                    imgObj[Object.keys(imageUrl)[0]] = e.target.result
+                                                    setUrl(imgObj)
+                                                };
+                                                reader.readAsDataURL(e.target.files[0])
+                                                setActive(true)
+                                            }
+                                        }}
+                                    />
+                                    <label htmlFor="image">
+                                        <Edit />
+                                    </label>
+                                </ImageContainer>
+                            )}
+                            <Form>
+                                {_fields?.filter(item => item.type !== "file").map((field, index) => (
+
+                                    <InputContainer key={index}>
+                                        <label htmlFor={field.name}>{field.placeHolder}</label>
+                                        <input
+                                            {...inputProps(field)}
+                                            onChange={e => onChange(e, field)}
+                                        />
+                                        {(field.error) && <p>{field.errorMessage}</p>}
+                                    </InputContainer>
+
+                                ))}
+                            </Form>
+                            {/* <TestWrapper>
+                                <input type="text" ref={input1} onBlur={onBlur} onFocus={onFocus} id="1" onClick={e => e.stopPropagation()} />
+                                <input type="text" ref={input2} onBlur={onBlur} onFocus={onFocus} id="2" onClick={e => e.stopPropagation()} />
+                                <input type="text" ref={input3} onBlur={onBlur} onFocus={onFocus} id="3" onClick={e => e.stopPropagation()} />
+                            </TestWrapper> */}
+                        </div>
+                        <Bottom>
+                            <div className="buttons-wrapper">
+                                <Button onClick={onClose}>Cancel</Button>
+                                <SaveButton onClick={submitHandler}>Save</SaveButton>
+                            </div>
+                        </Bottom>
+                    </>
+                )}
+
             </Content>
         </Wrapper>
     )
 }
 
 export default AddNew
+
+
+const TestWrapper = styled.div`
+    input{
+        color: #fff;
+        border: 1px solid #fff;
+    }
+`
+
 
 const Wrapper = styled.section`
     position: absolute;
@@ -239,6 +334,7 @@ const Content = styled.main`
     border-radius: 16px;
     padding: 32px;
     animation:${fadeIn} .3s ease-in-out ;
+    transition: all 1s ease-in-out;
 
     h1{
         color: #fff;
@@ -246,9 +342,18 @@ const Content = styled.main`
         /* text-align: center; */
         margin-bottom: 46px;
     }
+
+    &.crop-active{
+        width:auto;
+        min-width: 800px;
+        max-width: 800px;
+        min-height: max-content !important;
+        /* min-height: 600px; */
+        /* max-height: 8px; */
+    }
 `
 
-const Form = styled.div`
+const Form = styled.form`
     display: flex;
     gap: 14px;
     flex-wrap: wrap;
@@ -338,12 +443,36 @@ const ImageContainer = styled.div`
     align-items: center;
 
     label{
-        background-color:#e8e3f9 ;
+        /* background-color:#e8e3f9 ;
         padding: 4px 10px;
         border-radius: 4px;
         font-weight: 600;
         font-size: 13px;
-        color: #111;
+        color: #111; */
         cursor: pointer;
+
+        svg{
+            fill: #4b1989;
+            width: 24px;
+            height: 24px;
+        }
     }
+`
+
+const CropperWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+`
+const CropBtnWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    /* align-items: flex-end; */
+`
+const CropButton = styled(SaveButton)`
+    width: auto;
+    padding: 8px 42px ;
 `
