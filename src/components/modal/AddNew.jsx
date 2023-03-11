@@ -35,7 +35,6 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
         var url = {}
         let exists = []
         for (let key in initialState) {
-            // String(initialState[key]).includes("http://")
             if (String(key).includes('image')) {
                 url[key] = initialState[key]
                 exists.push(true)
@@ -72,6 +71,7 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
         setParams(data)
     }
 
+    // function for cropping profile images 
     const onCropChange = () => {
         const imageElement = cropperRef?.current;
         const cropper = imageElement?.cropper;
@@ -217,7 +217,8 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
                                     <img
                                         loading='lazy'
                                         style={{ width: "100px", height: "100px", borderRadius: "50%" }}
-                                        src={imageUrl.image ? `http://localhost:8000/media/${imageUrl.image}` : profile}
+                                        // src={imageUrl.image}
+                                        src={imageUrl.image ? imageUrl.image : profile}
                                         alt="something"
                                     />
                                     <input

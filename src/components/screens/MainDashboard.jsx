@@ -31,13 +31,12 @@ const MainDashboard = () => {
 		return () => {
 			document.removeEventListener("click", clickEvent)
 		}
-
 	}, [top, left])
 
 	return (
 		<div >
 			<h1>MainDashboard</h1>
-			<Dot id="modal" className={top !== 0 ? "active" : ""} top={top} left={left} />
+			{/* <Dot id="modal" className={top !== 0 ? "active" : ""} top={top} left={left} /> */}
 		</div>
 	)
 }

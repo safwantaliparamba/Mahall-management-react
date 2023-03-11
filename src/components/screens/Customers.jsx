@@ -1,5 +1,5 @@
 // default react imports 
-import React, {  useState } from 'react'
+import React, { useState } from 'react'
 // 3rd party package imports 
 import styled from 'styled-components'
 import { Helmet } from 'react-helmet'
@@ -34,17 +34,9 @@ const Customers = () => {
 	const [currentPage, setCurrentPage] = useState(1)
 	const [firstItemCount, setFirstItemCount] = useState(1)
 	const [actionModalTop, setModalTop] = useState(false)
-
+	const [searchQ, setSearch] = useState("")
 
 	const queryClient = useQueryClient()
-
-	// useEffect(() => {
-	// 	if (selectedCustomers.length === 0) {
-	// 		setDisableDelete(true)
-	// 	} else {
-	// 		setDisableDelete(false)
-	// 	}
-	// }, [selectedCustomers])
 
 	const addNewCustomer = async (customer) => {
 		return authenticatedAPI
@@ -62,7 +54,7 @@ const Customers = () => {
 	}
 
 	const editCustomer = async (customer) => {
-		console.log(activeItem,"activeItem----------------");
+		console.log(activeItem, "activeItem----------------");
 		return authenticatedAPI
 			.post(`/customers/chief/update/${activeItem.id}/`, customer)
 			.then(response => {
@@ -83,7 +75,8 @@ const Customers = () => {
 		return authenticatedAPI
 			.get(`/customers/chief/customers/`, {
 				params: {
-					page: currentPage
+					page: currentPage,
+					q: searchQ,
 				}
 			})
 			.then(response => {
@@ -104,18 +97,9 @@ const Customers = () => {
 			})
 	}
 
-	// caches.open("images").then((cache)=>{
-	// 	cache.add("http://127.0.0.1:8000/media/customers/profile/Eren_yeager_squfPuq.png")
-	// 	console.log('success');
-	// }).catch(e => console.log("error "))
-
 	const { data, isError, isLoading, error } = useQuery(['customers', currentPage], fetchCustomers, {
 		keepPreviousData: true,
-		// select: (data) => {
-		// 	return data.data
-		// },
 	})
-
 
 	const newCustomer = useMutation(['customers'], addNewCustomer, {
 		onSuccess: (data, customer, context) => {
@@ -127,10 +111,10 @@ const Customers = () => {
 		},
 	})
 
-	const updateCustomer = useMutation(["customers",currentPage],editCustomer,{
+	const updateCustomer = useMutation(["customers", currentPage], editCustomer, {
 		onSuccess: (data, customer, context) => {
 			console.log('on success');
-			queryClient.invalidateQueries(["customers",currentPage])
+			queryClient.invalidateQueries(["customers", currentPage])
 			setEditModal(false)
 		},
 		onError: (error, customer, context) => {
@@ -138,68 +122,29 @@ const Customers = () => {
 		},
 	})
 
-	function deleteHandler() {
-		// let filteredCustomers = customers
-		// selectedCustomers.forEach(customer => {
-		// 	filteredCustomers = filteredCustomers.filter(cust => cust.id !== customer.id)
-		// })
-		// setCustomers(filteredCustomers)
-		// setDisableDelete(true)
-	}
+	// delete customer handler 
+	function deleteHandler() { }
 
-	const addNewHandler = () => {
-		setAddNew(true)
-	}
+	// addNew modal handler 
+	const addNewHandler = () => setAddNew(true)
 
-	const selectAllHandler = () => {
-		// if (selectedCustomers !== customers) {
-		// 	setSelectedCustomers(customers)
-		// 	setSelectAll(true)
-		// } else {
-		// 	setSelectedCustomers([])
-		// 	setSelectAll(false)
-		// 	setDisableDelete(true)
-		// }
-	}
+	// select all customers handler 
+	const selectAllHandler = () => { }
 
-	const singleSelectHandler = (customer) => {
-		// let isIncluded = selectedCustomers.find(item => item.id === customer.id)
-		// if (!isIncluded) {
-		// 	setSelectedCustomers(prev => [...prev, customer])
+	// single customer selector 
+	const singleSelectHandler = (customer) => { }
 
-		// } else {
-		// 	let filteredItems = selectedCustomers.filter(item => item.id !== customer.id)
-		// 	setSelectedCustomers(filteredItems)
-		// }
+	// addNew mutation handler 
+	const addItem = (customer = {}) => newCustomer.mutate(customer)
 
-	}
-	const addItem = (customer = {}) => {
-		newCustomer.mutate(customer)
-	}
-	const editItem = (customer={}) => {
-		updateCustomer.mutate(customer)
+	// edit customer mutation handler 
+	const editItem = (customer = {}) => updateCustomer.mutate(customer)
 
-		// let index = customers.findIndex(item => item.id === customer.id)
+	// action modal toogler 
+	const handler = () => setToggleActionModal(false)
 
-		// if (index !== -1) {
-		// 	customers[index] = customer
-		// }
-		// setCustomers(customers)
-	}
-
-	const handler = () => {
-		setToggleActionModal(false)
-	}
-
-	const searchHandler = (searchKeyword) => {
-
-		// if (searchKeyword === "") {
-		// 	setCustomers([])
-		// } else {
-		// 	const filteredCustomers = customers.filter(customer => customer.name.toLowerCase().includes(searchKeyword))
-		// 	setCustomers(filteredCustomers)
-		// }
-	}
+	// search customers handler 
+	const searchHandler = (searchKeyword) => { }
 
 	return (
 		<>
@@ -291,7 +236,7 @@ const Customers = () => {
 					))}
 				</ItemsContainer>
 
-				{(!isLoading  && data?.data)&& (
+				{(!isLoading && data?.data) && (
 					<PaginationContainer>
 						<ReactPaginate
 							pageCount={data?.total_pages}
@@ -330,7 +275,7 @@ const Customers = () => {
 					fields={addNewFields}
 					header="Create Customer"
 					addItem={addItem}
-					apiURI="/customers/create/"
+				// apiURI="/customers/create/"
 				/>
 			)}
 
@@ -469,10 +414,10 @@ const SelectAll = styled.div`
 
 const ItemWrapper = styled.div`
 	display: flex;
-	/* width: 100%; */
+	width: 100%;
 	margin-bottom: 4px;
 	transition: all 1s ease-in-out;
-	`
+`
 const Items = styled.ul`
 	display: flex;
 	/* align-items: center; */
@@ -620,6 +565,8 @@ const MenuItems = styled.div`
 
 const ItemContainer = styled.main``
 const ItemsContainer = styled.section`
+	width: 100%;
+	transition: all 1s ease-in-out;
 	/* height: calc(100vh - (96px+88px+92px+50px+300px)); */
 	/* overflow-y: scroll; */
 	height: 540px;
