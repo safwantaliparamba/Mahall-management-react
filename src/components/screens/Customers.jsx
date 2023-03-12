@@ -113,7 +113,6 @@ const Customers = () => {
 
 	const updateCustomer = useMutation(["customers", currentPage], editCustomer, {
 		onSuccess: (data, customer, context) => {
-			console.log('on success');
 			queryClient.invalidateQueries(["customers", currentPage])
 			setEditModal(false)
 		},
@@ -144,7 +143,9 @@ const Customers = () => {
 	const handler = () => setToggleActionModal(false)
 
 	// search customers handler 
-	const searchHandler = (searchKeyword) => { }
+	const searchHandler = (searchKeyword) => { 
+		setSearch(searchKeyword)
+	}
 
 	return (
 		<>
