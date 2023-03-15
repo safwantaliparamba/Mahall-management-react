@@ -3,7 +3,9 @@ import { Helmet } from 'react-helmet'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+
 import useClickOutside from '../../hooks/useClickOutside'
+import logoutIcon from '../../../assets/icons/logout.svg'
 
 const DashboardHeader = () => {
 	const [isOpen, setIsOpen] = useState(false)
@@ -95,13 +97,13 @@ const AccountsModal = ({ setIsOpen }) => {
 	return (
 		<Content ref={modalRef}>
 			<ul>
-				<li>
+				{/* <li>
 					<Link to=''>Profile</Link>
-				</li>
+				</li> */}
 				<li onClick={e => {
 					navigate('/auth/logout/')
 				}}>
-					<img src={require('../../../assets/icons/logout.svg').default} alt="" />
+					<img src={logoutIcon} alt="" />
 					<span>Logout</span>
 				</li>
 			</ul>
@@ -128,7 +130,7 @@ const Content = styled.div`
 		cursor: pointer;
 
 		:last-child{
-			border-top: 1px solid rgb(38, 39, 42) ;
+			/* border-top: 1px solid rgb(38, 39, 42) ; */
 			margin-bottom: 0;
 			display: flex;
 			align-items: center;

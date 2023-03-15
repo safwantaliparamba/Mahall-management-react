@@ -16,7 +16,8 @@ import AddNew from '../modal/AddNew'
 import ConfirmDelete from '../modal/ConfirmDelete'
 import SectionLoader from '../../assets/loaders/SectionLoader'
 import { addNewFields, addNewInitialState } from '../data/customers'
-import { authenticatedAPI } from '../../axiosConfig';
+import { authenticatedAPI } from '../../config/axios';
+import { useEffect } from 'react';
 
 
 const Customers = () => {
@@ -32,6 +33,7 @@ const Customers = () => {
 	const [hasError, setError] = useState(false)
 	// pagination states 
 	const [currentPage, setCurrentPage] = useState(1)
+	const [tempCurrentPage, setTempCurrentPage] = useState(1)
 	const [firstItemCount, setFirstItemCount] = useState(1)
 	const [actionModalTop, setModalTop] = useState(false)
 	const [searchQ, setSearch] = useState("")
@@ -84,7 +86,6 @@ const Customers = () => {
 
 				if (statusCode === 6000) {
 					setError(false)
-					setCurrentPage(data?.current_page)
 					setFirstItemCount(data?.first_item)
 
 					return data
@@ -143,9 +144,15 @@ const Customers = () => {
 	const handler = () => setToggleActionModal(false)
 
 	// search customers handler 
-	const searchHandler = (searchKeyword) => { 
+	const searchHandler = (searchKeyword) => {
 		setSearch(searchKeyword)
 	}
+
+	useEffect(() => {
+		setTimeout(() => {
+
+		})
+	}, [currentPage])
 
 	return (
 		<>
@@ -241,18 +248,7 @@ const Customers = () => {
 					<PaginationContainer>
 						<ReactPaginate
 							pageCount={data?.total_pages}
-							// onPageChange={({ selected }) => {
-							// 	(!isPreviousData && isStale) && setCurrentPage(selected + 1)
-							// }}
-							// onClick={({selected,isPrevious,isNext,event,nextSelectedPage,})=> {
-							// 	// console.log({isPrevious,isNext,event});
-							// 	if(isPrevious && selected){
-							// 		setCurrentPage(selected )
-							// 	}else if (isNext){
-							// 		setCurrentPage(selected + 1)
-							// 	}
-
-							// }}
+							onPageChange={({ selected }) => setCurrentPage(selected + 1)}
 							activeLinkClassName='active-link'
 							previousLabel='<'
 							nextLabel='>'
@@ -607,15 +603,6 @@ const PaginationContainer = styled.section`
 	}
 
 	.item {
-		/* display: flex;
-		background-color: #4b1989;
-		width: 40px;
-		height: 40px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		border-radius: 50%;
-		cursor: pointer; */
 		a{
 			color: #4b1989;
 		}

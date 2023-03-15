@@ -5,6 +5,7 @@ import profile from "../../assets/icons/user.svg"
 import "cropperjs/dist/cropper.css";
 import Edit from '../../assets/icons/Edit';
 import useNoScroll from '../hooks/useNoScroll';
+import Modal from './Modal';
 
 
 const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
@@ -172,7 +173,7 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
 
 
     return (
-        <Wrapper onClick={() => !cropActive && onClose()}>
+        <Modal onClick={() => !cropActive && onClose()}>
             <Content
                 onClick={e => {
                     e.stopPropagation()
@@ -279,7 +280,7 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
                 )}
 
             </Content>
-        </Wrapper>
+        </Modal>
     )
 }
 
@@ -294,22 +295,22 @@ const TestWrapper = styled.div`
 `
 
 
-const Wrapper = styled.section`
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #534e4e34;
-    z-index: 10;
+// const Wrapper = styled.section`
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     width: 100vw;
+//     height: 100vh;
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     background: #534e4e34;
+//     z-index: 10;
 
-    *{
-		user-select: none;
-	}
-`
+//     *{
+// 		user-select: none;
+// 	}
+// `
 
 const fadeIn = keyframes`
     0%{

@@ -34,16 +34,14 @@ authenticatedAPI.interceptors.response.use(
         return error;
     })
 
-
-
-    api.interceptors.response.use(
-        // response
-        (response) => {
-            return response
-        }
-        ,
-        // error
-        (error) => {
-            console.log(`error occured in ${URL}${error.config.url}`);
-            return error;
-        })
+api.interceptors.response.use(
+    // response
+    (response) => {
+        return response
+    }
+    ,
+    // error
+    (error) => {
+        console.log(`error occured in ${URL}${error.config.url}`);
+        return error;
+    })

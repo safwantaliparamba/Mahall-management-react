@@ -1,11 +1,12 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
-import Delete from '../../assets/icons/Delete'
 
+import Delete from '../../assets/icons/Delete'
+import Modal from "./Modal"
 
 const ConfirmDelete = ({ deleteHandler, count, item, onClose }) => {
     return (
-        <Wrapper onClick={onClose}>
+        <Modal onClick={onClose}>
             <Content
                 onClick={e => e.stopPropagation()}
             >
@@ -32,7 +33,7 @@ const ConfirmDelete = ({ deleteHandler, count, item, onClose }) => {
                     </ConfirmButton>
                 </footer>
             </Content>
-        </Wrapper>
+        </Modal>
     )
 }
 

@@ -10,7 +10,7 @@ import show from '../../assets/icons/eye.svg'
 import hide from '../../assets/icons/hide.svg'
 import message from '../../assets/icons/message.svg'
 import lock from '../../assets/icons/lock.svg'
-import { api } from '../../axiosConfig'
+import { api } from '../../config/axios'
 
 
 const Login = () => {
