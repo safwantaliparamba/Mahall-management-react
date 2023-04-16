@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react"
 
 
-const useClickOutside = (handler,parentRef) => {
-    const itemRef = useRef()
+const useClickOutside = (handler=():void=>{}, parentRef: HTMLElement) => {
+    const itemRef: React.MutableRefObject<null | HTMLElement> = useRef(null)
 
     useEffect(() => {
 
-        const eventHandler = (e) => {
-            if (!itemRef.current.contains(e.target) && !parentRef.contains(e.target)) {
+        const eventHandler = (e: MouseEvent) => {
+
+            if (!(itemRef.current as HTMLElement).contains(e.target as HTMLElement) && !parentRef.contains(e.target as HTMLElement)) {
                 handler();
             }
         }

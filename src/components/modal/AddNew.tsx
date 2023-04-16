@@ -8,7 +8,16 @@ import useNoScroll from '../hooks/useNoScroll';
 import Modal from './Modal';
 
 
-const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
+interface Props {
+    onClose():void,
+    initialState:{},
+    fields:[],
+    header:string,
+    addItem():void
+    
+}
+
+const AddNew = ({ onClose, initialState, fields = [], header, addItem }:Props) => {
     // initial state 
     const [params, setParams] = useState(initialState)
     const [cropActive, setActive] = useState(false)
@@ -161,13 +170,15 @@ const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
     const onFocus = (e) => {
         if (prevTarget) {
             if (prevTarget === e.target){
-                console.log("same");
+                console.log("target");
+                console.log(prevTarget);
             }else{
                 e.target.blur()
             }
 
         } else {
             console.log("none");
+            console.log(prevTarget);
         }
     }
 

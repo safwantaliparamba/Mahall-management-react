@@ -4,13 +4,14 @@ import styled, { keyframes } from 'styled-components'
 import NoNetwork from '../../assets/icons/NoNetwork'
 import { authActions } from '../../store/authSlice'
 
-const NetworkError = () => {
+const NetworkError:React.FC = () => {
 	const dispatch = useDispatch()
 	const onClose = () => {
 		dispatch(authActions.setNetworkError({
 			networkError: false
 		}))
 	}
+	
 	return (
 		<Wrapper>
 			<Content>

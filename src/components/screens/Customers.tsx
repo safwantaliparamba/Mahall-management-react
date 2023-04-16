@@ -1,23 +1,21 @@
-// default react imports 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 // 3rd party package imports 
 import styled from 'styled-components'
 import { Helmet } from 'react-helmet'
-import { useQueryClient, useMutation, useQuery } from 'react-query'
 import ReactPaginate from 'react-paginate';
+import { useQueryClient, useMutation, useQuery } from 'react-query'
 // local imports 
-import ItemHeader from '../includes/main/ItemHeader'
-import Tick from "../../assets/icons/Tick"
-import Edit from '../../assets/icons/Edit'
+import AddNew from '../modal/AddNew'
 import Dots from '../../assets/icons/Dots'
 import View from '../../assets/icons/View'
-import useClickOutside from '../hooks/useClickOutside'
-import AddNew from '../modal/AddNew'
+import Edit from '../../assets/icons/Edit'
+import Tick from "../../assets/icons/Tick"
 import ConfirmDelete from '../modal/ConfirmDelete'
+import ItemHeader from '../includes/main/ItemHeader'
+import { authenticatedAPI } from '../../config/axios';
+import useClickOutside from '../hooks/useClickOutside'
 import SectionLoader from '../../assets/loaders/SectionLoader'
 import { addNewFields, addNewInitialState } from '../data/customers'
-import { authenticatedAPI } from '../../config/axios';
-import { useEffect } from 'react';
 
 
 const Customers = () => {
@@ -98,8 +96,9 @@ const Customers = () => {
 			})
 	}
 
-	const { data, isError, isLoading, error } = useQuery(['customers', currentPage], fetchCustomers, {
+	const { data, isError, isLoading, error } = useQuery(['customers', currentPage,searchQ], fetchCustomers, {
 		keepPreviousData: true,
+		notifyOnChangeProps:["data"]
 	})
 
 	const newCustomer = useMutation(['customers'], addNewCustomer, {

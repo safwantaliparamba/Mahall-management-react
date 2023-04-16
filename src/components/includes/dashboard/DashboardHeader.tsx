@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { MutableRefObject, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
@@ -6,10 +6,36 @@ import styled from 'styled-components'
 
 import useClickOutside from '../../hooks/useClickOutside'
 import logoutIcon from '../../../assets/icons/logout.svg'
+import { RootState } from "../../../store/index"
+
 
 const DashboardHeader = () => {
-	const [isOpen, setIsOpen] = useState(false)
-	const username = useSelector(state => state.auth.username)
+	// Local state
+	const [isOpen, setIsOpen] = useState<boolean>(false)
+	
+	// Global state
+	const username = useSelector((state:RootState) => state.auth.username)
+
+	const AccountsModal = () => {
+		const parentRef: HTMLElement | null = document.getElementById("account-action")!
+		const navigate = useNavigate()
+	
+		const modalRef: React.MutableRefObject<HTMLElement | null> = useClickOutside(() => setIsOpen(false), parentRef)
+		const ref = modalRef as React.RefObject<HTMLDivElement>
+	
+		return (
+			<Content ref={ref}>
+				<ul>
+					<li onClick={e => {
+						navigate('/auth/logout/')
+					}}>
+						<img src={logoutIcon.toString()} alt="" />
+						<span>Logout</span>
+					</li>
+				</ul>
+			</Content>
+		)
+	}
 
 	return (
 		<>
@@ -25,9 +51,7 @@ const DashboardHeader = () => {
 						onClick={e => setIsOpen(!isOpen)}
 						id="account-action"
 					>
-						<Account
-							// onClick={e => setIsOpen(!isOpen)}
-						>
+						<Account>
 							{username[0].toUpperCase()}
 						</Account>
 						<span>{username}</span>
@@ -35,7 +59,7 @@ const DashboardHeader = () => {
 				</header>
 			</MainContainer>
 			{isOpen && (
-				<AccountsModal setIsOpen={setIsOpen} />
+				<AccountsModal />
 			)}
 		</>
 	)
@@ -87,30 +111,6 @@ const Right = styled.div`
 		text-transform: capitalize;
 	}
 `
-
-const AccountsModal = ({ setIsOpen }) => {
-	const parentRef = document.getElementById("account-action")
-
-	const navigate = useNavigate()
-	const modalRef = useClickOutside(() => setIsOpen(false), parentRef)
-
-	return (
-		<Content ref={modalRef}>
-			<ul>
-				{/* <li>
-					<Link to=''>Profile</Link>
-				</li> */}
-				<li onClick={e => {
-					navigate('/auth/logout/')
-				}}>
-					<img src={logoutIcon} alt="" />
-					<span>Logout</span>
-				</li>
-			</ul>
-		</Content>
-	)
-}
-
 
 const Content = styled.div`
 	position: absolute;

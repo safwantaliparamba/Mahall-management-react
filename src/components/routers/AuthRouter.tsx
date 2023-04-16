@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{ReactNode} from 'react'
 import { useDispatch } from 'react-redux'
 import { Route, Routes } from 'react-router-dom'
 import { authActions } from '../../store/authSlice'
@@ -21,4 +21,6 @@ export default AuthRouter
 const Logout = () => {
   const dispatch = useDispatch()
   dispatch(authActions.logout())
+
+  return <span>loggin out</span>
 }

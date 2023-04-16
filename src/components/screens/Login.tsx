@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,ReactNode,ReactElement } from 'react'
 import { Helmet } from 'react-helmet'
 import Lottie from 'react-lottie'
 import { useDispatch } from 'react-redux'
@@ -6,21 +6,21 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import buttonAnimation from '../../assets/lottie/buttonLoader.json'
 import { authActions } from '../../store/authSlice'
-import show from '../../assets/icons/eye.svg'
+import show  from '../../assets/icons/eye.svg' 
 import hide from '../../assets/icons/hide.svg'
 import message from '../../assets/icons/message.svg'
-import lock from '../../assets/icons/lock.svg'
+import lock from '../../assets/icons/lock.svg' 
 import { api } from '../../config/axios'
 
 
-const Login = () => {
-	const [isHide, setIsHide] = useState(true)
-	const [isLoading, setIsLoading] = useState(false)
-	const [username, setUsername] = useState("")
-	const [password, setPassword] = useState("")
-	const [errorMessage, setErrorMessage] = useState("")
-	const [isValidUsername, setIsValidUsername] = useState(false)
-	const [isValidPassword, setIsValidPassword] = useState(false)
+const Login = ():ReactElement => {
+	const [isHide, setIsHide] = useState<boolean>(true)
+	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const [username, setUsername] = useState<string>("")
+	const [password, setPassword] = useState<string>("")
+	const [errorMessage, setErrorMessage] = useState<string | boolean>("") 
+	const [isValidUsername, setIsValidUsername] = useState<boolean>(false)
+	const [isValidPassword, setIsValidPassword] = useState<boolean>(false)
 
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
@@ -43,8 +43,8 @@ const Login = () => {
 							authActions.login(
 								{
 									username: data.data.username,
-									access: data.data.access,
-									refresh: data.data.refresh,
+									accessToken: data.data.access,
+									refreshToken: data.data.refresh,
 									isAuthenticated: true,
 								}
 							))
@@ -69,7 +69,7 @@ const Login = () => {
 		animationData: buttonAnimation,
 	};
 
-	const onUsernameChange = e => {
+	const onUsernameChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		const tempUsername = e.target.value
 
 		setErrorMessage(false)
@@ -81,7 +81,7 @@ const Login = () => {
 		}
 	}
 
-	const onPasswordChange = e => {
+	const onPasswordChange = (e:React.ChangeEvent<HTMLInputElement>) => {
 		let tempPassword = e.target.value
 
 		setErrorMessage(false)
@@ -105,7 +105,7 @@ const Login = () => {
 						<P>Pulimparamba Mahall Committee Management System</P>
 						<InputContainer>
 							<label htmlFor="username">
-								<img src={message} alt="" />
+								<img src={message.toString()} alt="" />
 							</label>
 							<input
 								type="text"
@@ -120,7 +120,7 @@ const Login = () => {
 						>
 							<label htmlFor="password">
 								<img
-									src={lock}
+									src={lock.toString()}
 									alt=""
 								/>
 							</label>
@@ -132,7 +132,7 @@ const Login = () => {
 								onChange={onPasswordChange}
 							/>
 							<span>
-								<img src={isHide ? hide : show} alt="show-hide" onClick={e => setIsHide(!isHide)} />
+								<img src={isHide ? hide.toString() : show.toString()} alt="show-hide" onClick={e => setIsHide(!isHide)} />
 							</span>
 						</InputContainer>
 						{errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}

@@ -1,9 +1,14 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import styled from 'styled-components'
 import DashboardHeader from './DashboardHeader'
 import DashboardSideNav from './DashboardSideNav'
 
-const DashboardRoutesWrapper = ({ children }) => {
+
+interface Props {
+    children: ReactNode
+}
+
+const DashboardRoutesWrapper = ({ children }:Props) => {
     return (
         <>
             <DashboardHeader />
