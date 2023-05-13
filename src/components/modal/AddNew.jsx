@@ -8,16 +8,7 @@ import useNoScroll from '../hooks/useNoScroll';
 import Modal from './Modal';
 
 
-interface Props {
-    onClose():void,
-    initialState:{},
-    fields:[],
-    header:string,
-    addItem():void
-    
-}
-
-const AddNew = ({ onClose, initialState, fields = [], header, addItem }:Props) => {
+const AddNew = ({ onClose, initialState, fields = [], header, addItem }) => {
     // initial state 
     const [params, setParams] = useState(initialState)
     const [cropActive, setActive] = useState(false)

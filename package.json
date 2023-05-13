@@ -8,9 +8,6 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
     "@testing-library/user-event": "^13.2.1",
-    "@types/react-helmet": "^6.1.6",
-    "@types/react-lottie": "^1.2.6",
-    "@types/styled-components": "^5.1.26",
     "axios": "^1.2.1",
     "react": "^18.2.0",
     "react-cropper": "^2.1.8",
@@ -22,7 +19,6 @@
     "react-redux": "^8.0.5",
     "react-router-dom": "6",
     "styled-components": "^5.3.6",
-    "typescript": "^5.0.4",
     "web-vitals": "^2.1.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useState } from 'react'
+import React, {useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
@@ -6,25 +6,23 @@ import styled from 'styled-components'
 
 import useClickOutside from '../../hooks/useClickOutside'
 import logoutIcon from '../../../assets/icons/logout.svg'
-import { RootState } from "../../../store/index"
 
 
 const DashboardHeader = () => {
 	// Local state
-	const [isOpen, setIsOpen] = useState<boolean>(false)
+	const [isOpen, setIsOpen] = useState(false)
 	
 	// Global state
-	const username = useSelector((state:RootState) => state.auth.username)
+	const username = useSelector((state) => state.auth.username)
 
 	const AccountsModal = () => {
-		const parentRef: HTMLElement | null = document.getElementById("account-action")!
+		const parentRef= document.getElementById("account-action")
 		const navigate = useNavigate()
 	
-		const modalRef: React.MutableRefObject<HTMLElement | null> = useClickOutside(() => setIsOpen(false), parentRef)
-		const ref = modalRef as React.RefObject<HTMLDivElement>
+		const modalRef= useClickOutside(() => setIsOpen(false), parentRef)
 	
 		return (
-			<Content ref={ref}>
+			<Content ref={modalRef}>
 				<ul>
 					<li onClick={e => {
 						navigate('/auth/logout/')

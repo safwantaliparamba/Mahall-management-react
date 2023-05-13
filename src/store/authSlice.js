@@ -1,18 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from '@reduxjs/toolkit'
 
 import { getLocalStorageItem } from '../functions'
 
 
-interface InitialState {
-    username: string
-    accessToken: string
-    refreshToken: string
-    isAuthenticated: boolean
-    networkError?: boolean
-}
-
-const initialState: InitialState = {
+const initialState = {
     username: getLocalStorageItem("username"),
     accessToken: getLocalStorageItem("accessToken"),
     refreshToken: getLocalStorageItem("refreshToken"),
@@ -24,7 +15,7 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        login: (state, action: PayloadAction<InitialState>) => {
+        login: (state, action) => {
             const { username, accessToken, refreshToken, isAuthenticated } = action.payload
 
             state.accessToken = accessToken
@@ -41,7 +32,7 @@ const authSlice = createSlice({
             localStorage.clear()
             state.isAuthenticated = false
         },
-        setNetworkError: (state, action:PayloadAction<{isAuthenticated: boolean}>) => {
+        setNetworkError: (state, action) => {
             state.networkError = action.payload.isAuthenticated
         }
     }

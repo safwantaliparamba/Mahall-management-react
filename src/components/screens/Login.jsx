@@ -13,7 +13,7 @@ import lock from '../../assets/icons/lock.svg'
 import { api } from '../../config/axios'
 
 
-const Login = ():ReactElement => {
+const Login = () => {
 	const [isHide, setIsHide] = useState<boolean>(true)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [username, setUsername] = useState<string>("")
@@ -69,7 +69,7 @@ const Login = ():ReactElement => {
 		animationData: buttonAnimation,
 	};
 
-	const onUsernameChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+	const onUsernameChange = (e) => {
 		const tempUsername = e.target.value
 
 		setErrorMessage(false)
@@ -81,7 +81,7 @@ const Login = ():ReactElement => {
 		}
 	}
 
-	const onPasswordChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+	const onPasswordChange = (e) => {
 		let tempPassword = e.target.value
 
 		setErrorMessage(false)

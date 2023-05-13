@@ -1,4 +1,4 @@
-const isValidUrl = (urlString: string) => {
+const isValidUrl = (urlString) => {
     var urlPattern = new RegExp('^(https?:\\/\\/)?' + // validate protocol
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
         '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
@@ -8,8 +8,8 @@ const isValidUrl = (urlString: string) => {
     return !!urlPattern.test(urlString);
 }
 
-export const getLocalStorageItem = (key: string, json: boolean=false) => {
-    let item = localStorage.getItem(key)!;
+export const getLocalStorageItem = (key, json=false) => {
+    let item = localStorage.getItem(key);
 
     if (item !== undefined || item !== null) {
 

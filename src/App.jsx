@@ -6,11 +6,10 @@ import AuthRouter from './components/routers/AuthRouter';
 import MainRouter from './components/routers/MainRouter';
 import PrivateRoute from './components/routers/routes/PrivateRoute';
 import NetworkError from "./components/modal/NetworkError";
-import { RootState } from "./store/index"
 
 
-const App:React.FC = ()=> {
-	const hasNetworkError = useSelector((state: RootState) => state.auth.networkError)
+const App = ()=> {
+	const hasNetworkError = useSelector((state) => state.auth.networkError)
 
 	useEffect(() => {
 		window.addEventListener("contextmenu", e => e.preventDefault());

@@ -3,14 +3,9 @@ import { useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
 
 
-interface Props {
-    children: ReactNode
-}
+const PrivateRoute = ({ children }) => {
+    const isAuthenticated = useSelector(state => state.auth.isAuthenticated)
 
-
-const PrivateRoute:React.FC<Props> = ({ children }) => {
-    const isAuthenticated:boolean = useSelector(state => state.auth.isAuthenticated)
-    
     return (
         isAuthenticated ? children : <Navigate to='/auth/login/' />
     )

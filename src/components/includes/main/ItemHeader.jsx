@@ -63,6 +63,7 @@ const ItemHeader = ({ header, searchHandler, deleteMethod, disableDelete, addNew
 					</TopLeft>
 					<TopRight>
 						<Button
+							tabIndex="-1"
 							className={hoverAddNew ? "active" : ""}
 							onMouseOver={e => setHoverAddNew(true)}
 							onMouseLeave={e => setHoverAddNew(false)}
@@ -71,7 +72,7 @@ const ItemHeader = ({ header, searchHandler, deleteMethod, disableDelete, addNew
 							<AddCustomers />
 							<span>Create</span>
 						</Button>
-						<Button
+						{/* <Button
 							className={[disableDelete ? "disabled" : "deleteActive"]}
 							onClick={e => {
 								!disableDelete && deleteMethod()
@@ -79,7 +80,7 @@ const ItemHeader = ({ header, searchHandler, deleteMethod, disableDelete, addNew
 						>
 							<Delete />
 							<span>Delete</span>
-						</Button>
+						</Button> */}
 						<Dots />
 					</TopRight>
 				</TopMenu>
