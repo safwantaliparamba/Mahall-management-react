@@ -27,7 +27,6 @@ const Customers = () => {
 	const [activeItem, setActiveItem] = useState({})
 	const [addNew, setAddNew] = useState(false)
 	const [editModal, setEditModal] = useState(false)
-	// const [customers, setCustomers] = useState([])
 	const [hasError, setError] = useState(false)
 	// pagination states 
 	const [currentPage, setCurrentPage] = useState(1)
@@ -96,9 +95,9 @@ const Customers = () => {
 			})
 	}
 
-	const { data, isError, isLoading, error } = useQuery(['customers', currentPage,searchQ], fetchCustomers, {
+	const { data, isError, isLoading, error } = useQuery(['customers', currentPage, searchQ], fetchCustomers, {
 		keepPreviousData: true,
-		notifyOnChangeProps:["data"]
+
 	})
 
 	const newCustomer = useMutation(['customers'], addNewCustomer, {
@@ -134,7 +133,10 @@ const Customers = () => {
 	// const singleSelectHandler = (customer) => { }
 
 	// addNew mutation handler 
-	const addItem = (customer = {}) => newCustomer.mutate(customer)
+	const addItem = (customer = {}) => {
+		console.log(customer)
+		newCustomer.mutate(customer)
+	}
 
 	// edit customer mutation handler 
 	const editItem = (customer = {}) => updateCustomer.mutate(customer)
@@ -147,12 +149,6 @@ const Customers = () => {
 		setSearch(searchKeyword)
 	}
 
-	useEffect(() => {
-		setTimeout(() => {
-
-		})
-	}, [currentPage])
-
 	return (
 		<>
 			<Helmet>
@@ -163,7 +159,6 @@ const Customers = () => {
 					header="Customers"
 					addNewHandler={addNewHandler}
 					deleteMethod={() => setDeleteModal(true)}
-					disableDelete={disableDelete}
 					searchHandler={searchHandler}
 				/>
 				{data?.data && (

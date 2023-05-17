@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import searchIcon from '../../../assets/icons/Search.png'
 import Dots from '../../../assets/icons/Dots'
 import AddCustomers from '../../../assets/icons/AddCustomers'
-import Delete from '../../../assets/icons/Delete'
+// import Delete from '../../../assets/icons/Delete'
 import CloseInput from '../../../assets/icons/CloseInput'
 
 
@@ -15,16 +15,12 @@ const ItemHeader = ({ header, searchHandler, deleteMethod, disableDelete, addNew
 
 	function onSearchChange(e) {
 		let value = e.target.value
+
 		if (value === "") {
 			setCloseBtn(false)
 		} else {
 			setCloseBtn(true)
 		}
-		document.addEventListener("keydown",(e)=>{
-			if(e.code === "Enter"){
-				searchHandler(searchKeyword)
-			}
-		})
 		setSearchKeyWord(value)
 	}
 
@@ -42,6 +38,12 @@ const ItemHeader = ({ header, searchHandler, deleteMethod, disableDelete, addNew
 								placeholder="Search...."
 								value={searchKeyword}
 								onChange={onSearchChange}
+								onKeyDown={e =>{
+									
+									if(e.code === "Enter"){
+										searchHandler(searchKeyword)
+									}
+								}}
 							/>
 							{showCloseBtn && (
 								<ClearButtonWrapper
